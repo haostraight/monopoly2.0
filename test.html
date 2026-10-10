@@ -6,6 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Friend Monopoly - Multiplayer Test</title>
   <style>
+    * { box-sizing: border-box; }
+
     body {
       background: #171522;
       color: white;
@@ -14,28 +16,48 @@
       margin: 35px auto;
       padding: 20px;
     }
+
     h1 { color: #ff79bd; }
+
     input, button {
-      box-sizing: border-box;
       width: 100%;
       padding: 12px;
       margin: 7px 0;
       border-radius: 8px;
       font-size: 16px;
     }
-    input { border: 1px solid #888; }
+
+    input {
+      border: 1px solid #888;
+      background: #282536;
+      color: white;
+    }
+
     button {
       background: #ff79bd;
+      color: #171522;
       border: 0;
       cursor: pointer;
       font-weight: bold;
     }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: wait;
+    }
+
     pre {
       white-space: pre-wrap;
       overflow-wrap: anywhere;
       background: #282536;
       padding: 14px;
       border-radius: 8px;
+      min-height: 100px;
+    }
+
+    .hint {
+      color: #c9c4d8;
+      font-size: 13px;
     }
   </style>
 </head>
@@ -52,96 +74,176 @@
   <button id="create">Create room</button>
   <button id="join">Join room</button>
 
+  <p class="hint">
+    Keep this page open to see player updates automatically.
+  </p>
+
   <pre id="output">Enter your name and room code to begin.</pre>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    // Replace these two placeholders with your PUBLIC project details.
-    const SUPABASE_URL = "https://yghlbyfkkwpzmvbkwbob.supabase.co";
-    const SUPABASE_KEY = "sb_publishable_42gwT-h8zvxfbQeXv_HxRQ_BKxAOKY3";
+    (() => {
+      "use strict";
 
-    const db = supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_KEY
-    );
+      // Keep your actual Supabase project details here.
+      const SUPABASE_URL = "PASTE_YOUR_PROJECT_URL_HERE";
+      const SUPABASE_KEY = "PASTE_YOUR_PUBLISHABLE_KEY_HERE";
 
-    const output = document.getElementById("output");
+      const output = document.getElementById("output");
+      const createButton = document.getElementById("create");
+      const joinButton = document.getElementById("join");
 
-    function show(message) {
-      output.textContent = message;
-    }
+      let db;
+      let currentRoomId = null;
+      let currentRoomCode = null;
+      let refreshTimer = null;
+      let actionInProgress = false;
 
-    async function ensureGuest() {
-      const { data, error } = await db.auth.getSession();
-      if (error) throw error;
-
-      if (!data.session) {
-        const result = await db.auth.signInAnonymously();
-        if (result.error) throw result.error;
+      function show(message) {
+        output.textContent = message;
       }
-    }
 
-    async function runAction(action) {
-      try {
-        show("Connecting...");
-        const name = document.getElementById("name").value.trim();
-        const code = document.getElementById("code").value.trim().toUpperCase();
+      function showError(error) {
+        console.error(error);
+        show("TEST FAILED\n\n" + (error.message || String(error)));
+      }
 
-        if (!name || !/^[A-Z0-9]{4,8}$/.test(code)) {
-          throw new Error("Enter a player name and a room code of 4-8 letters or numbers.");
+      async function ensureGuest() {
+        const { data, error } = await db.auth.getSession();
+        if (error) throw error;
+
+        if (!data.session) {
+          const result = await db.auth.signInAnonymously();
+          if (result.error) throw result.error;
         }
+      }
 
-        await ensureGuest();
+      async function refreshPlayers() {
+        if (!currentRoomId) return;
 
-        const functionName = action === "create"
-          ? "create_game_room"
-          : "join_game_room";
-
-        const { data: roomId, error } = await db.rpc(functionName, {
-          p_room_code: code,
-          p_player_name: name
-        });
+        const { data: players, error } = await db
+          .from("game_players")
+          .select("player_name, money, board_position")
+          .eq("room_id", currentRoomId)
+          .order("joined_at", { ascending: true });
 
         if (error) throw error;
 
-        const { data: room, error: roomError } = await db
-          .from("game_rooms")
-          .select("room_code, status")
-          .eq("id", roomId)
-          .single();
-
-        if (roomError) throw roomError;
-
-        const { data: players, error: playersError } = await db
-          .from("game_players")
-          .select("player_name, money, board_position")
-          .eq("room_id", roomId)
-          .order("joined_at");
-
-        if (playersError) throw playersError;
+        const lines = players.map((p, index) =>
+          (index + 1) + ". " + p.player_name +
+          " | $" + p.money +
+          " | Position " + p.board_position
+        );
 
         show(
-          "SUCCESS!\n\n" +
-          "Action: " + action + "\n" +
-          "Room: " + room.room_code + "\n" +
-          "Status: " + room.status + "\n\n" +
-          "Players:\n" +
-          players.map(p =>
-            p.player_name + " | $" + p.money +
-            " | Position " + p.board_position
-          ).join("\n") +
-          "\n\nYour guest session is working."
+          "Room: " + currentRoomCode +
+          "\nPlayers: " + players.length +
+          "\n\n" +
+          (lines.join("\n") || "No players found.") +
+          "\n\nUpdating automatically every 3 seconds."
         );
-      } catch (error) {
-        show("TEST FAILED\n\n" + error.message);
       }
-    }
 
-    document.getElementById("create").onclick =
-      () => runAction("create");
+      async function runAction(action) {
+        if (actionInProgress) return;
 
-    document.getElementById("join").onclick =
-      () => runAction("join");
+        actionInProgress = true;
+        createButton.disabled = true;
+        joinButton.disabled = true;
+
+        try {
+          show("Connecting to Supabase...");
+
+          const name = document.getElementById("name").value.trim();
+          const code = document.getElementById("code")
+            .value.trim().toUpperCase();
+
+          if (!name || name.length > 20) {
+            throw new Error("Enter a name between 1 and 20 characters.");
+          }
+
+          if (!/^[A-Z0-9]{4,8}$/.test(code)) {
+            throw new Error(
+              "Enter a room code with 4-8 letters or numbers."
+            );
+          }
+
+          await ensureGuest();
+
+          const functionName = action === "create"
+            ? "create_game_room"
+            : "join_game_room";
+
+          const { data: roomId, error } = await db.rpc(functionName, {
+            p_room_code: code,
+            p_player_name: name
+          });
+
+          if (error) throw error;
+
+          if (!roomId) {
+            throw new Error("The server did not return a room ID.");
+          }
+
+          const { data: room, error: roomError } = await db
+            .from("game_rooms")
+            .select("room_code, status")
+            .eq("id", roomId)
+            .single();
+
+          if (roomError) throw roomError;
+
+          currentRoomId = roomId;
+          currentRoomCode = room.room_code;
+
+          if (refreshTimer) clearInterval(refreshTimer);
+
+          await refreshPlayers();
+
+          refreshTimer = setInterval(async () => {
+            try {
+              await refreshPlayers();
+            } catch (error) {
+              console.error("Player refresh failed:", error);
+            }
+          }, 3000);
+
+        } catch (error) {
+          showError(error);
+        } finally {
+          actionInProgress = false;
+          createButton.disabled = false;
+          joinButton.disabled = false;
+        }
+      }
+
+      if (!window.supabase) {
+        show(
+          "Could not load the Supabase library. Check your internet connection and reload."
+        );
+        return;
+      }
+
+      if (
+        SUPABASE_URL.includes("PASTE_YOUR") ||
+        SUPABASE_KEY.includes("PASTE_YOUR")
+      ) {
+        show("Add your Supabase project URL and publishable key first.");
+        return;
+      }
+
+      db = window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+      );
+
+      createButton.addEventListener("click", () => runAction("create"));
+      joinButton.addEventListener("click", () => runAction("join"));
+
+      window.addEventListener("beforeunload", () => {
+        if (refreshTimer) clearInterval(refreshTimer);
+      });
+    })();
   </script>
 </body>
 </html>
