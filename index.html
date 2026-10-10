@@ -1,0 +1,57 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Friend Monopoly</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: #171522;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+
+    main {
+      padding: 32px;
+      max-width: 500px;
+    }
+
+    h1 {
+      color: #ff79bd;
+      font-size: 42px;
+    }
+
+    button {
+      background: #ff79bd;
+      color: #171522;
+      border: 0;
+      border-radius: 12px;
+      padding: 14px 24px;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>🎲 Friend Monopoly</h1>
+    <p>Buy your friends. Charge them rent. Ruin friendships.</p>
+    <p id="status">Your game is ready to begin!</p>
+    <button onclick="startGame()">Start Game</button>
+  </main>
+
+  <script>
+    function startGame() {
+      document.getElementById("status").textContent =
+        "Game loading... Let the chaos begin!";
+    }
+  </script>
+</body>
+</html>
