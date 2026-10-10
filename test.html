@@ -3,171 +3,229 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Friend Monopoly</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-* { box-sizing: border-box; }
-
+<style>
 :root {
+  color-scheme: dark;
   --bg: #100d1b;
   --panel: #1c172b;
-  --panel-light: #28213b;
-  --pink: #ff78c6;
-  --purple: #a78bfa;
-  --text: #faf7ff;
-  --muted: #aaa1c1;
-  --green: #76e8b0;
-  --border: #403354;
+  --panel2: #29213b;
+  --pink: #ff83cb;
+  --purple: #b69aff;
+  --green: #80e7b4;
+  --text: #fffaff;
+  --muted: #aaa2bd;
+  --border: #433553;
+  --danger: #ff8c9c;
 }
-
+* { box-sizing: border-box; }
 body {
   margin: 0;
   min-height: 100vh;
-  padding: 24px;
+  padding: 20px;
   background:
-    radial-gradient(ellipse at 10% 0%, #462050 0, transparent 38%),
-    radial-gradient(ellipse at 100% 30%, #25204c 0, transparent 35%),
+    radial-gradient(ellipse at 8% 0%, #48204f 0, transparent 38%),
+    radial-gradient(ellipse at 100% 20%, #27204e 0, transparent 34%),
     var(--bg);
   color: var(--text);
   font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
 }
-
-main {
-  max-width: 1180px;
-  margin: auto;
-}
-
-h1 {
-  text-align: center;
-  font-size: clamp(30px, 5vw, 48px);
-  letter-spacing: -1.5px;
-  margin: 8px 0 4px;
-  color: var(--pink);
-  text-shadow: 0 0 30px #ff78c644;
-}
-
-h2, h3 { letter-spacing: -.4px; }
-h2 { margin-top: 0; }
-
-#entry {
-  max-width: 460px;
-  margin: 32px auto;
-}
-
-.panel {
-  background: linear-gradient(145deg, #241d35, #191525);
-  border: 1px solid var(--border);
-  border-radius: 22px;
-  padding: 24px;
-  margin: 18px 0;
-  box-shadow: 0 12px 40px #00000020;
-}
-
-input {
-  display: block;
-  width: 100%;
-  padding: 14px 16px;
-  margin: 8px 0 18px;
-  color: white;
-  background: #120f1d;
-  border: 1px solid #514366;
-  border-radius: 12px;
-  font: inherit;
-  outline: none;
-}
-
-input:focus {
-  border-color: var(--pink);
-  box-shadow: 0 0 0 3px #ff78c622;
-}
-
+button, input { font: inherit; }
 button {
-  border: 0;
+  border: 1px solid transparent;
   border-radius: 12px;
-  padding: 13px 18px;
-  margin: 4px;
-  font: inherit;
-  font-weight: 750;
+  padding: 12px 17px;
+  background: linear-gradient(135deg, #ffa4dc, var(--pink));
+  color: #241326;
+  font-weight: 800;
   cursor: pointer;
-  color: #241426;
-  background: linear-gradient(135deg, #ff9ad7, var(--pink));
-  box-shadow: 0 5px 18px #ff78c61c;
   transition: transform .15s, filter .15s;
 }
-
 button:hover:not(:disabled) {
-  filter: brightness(1.1);
-  transform: translateY(-2px);
+  filter: brightness(1.08);
+  transform: translateY(-1px);
 }
-
-button:active:not(:disabled) { transform: translateY(0); }
-
-button:disabled {
-  opacity: .4;
-  cursor: not-allowed;
-  box-shadow: none;
+button:disabled { opacity: .4; cursor: not-allowed; }
+button.secondary {
+  background: var(--panel2);
+  border-color: var(--border);
+  color: var(--text);
 }
-
-.secondary {
+button.green {
+  background: linear-gradient(135deg, #a6f5ce, var(--green));
+  color: #10271e;
+}
+button.danger {
+  background: #442432;
+  color: #ffdce3;
+  border-color: #704050;
+}
+input {
+  width: 100%;
+  min-width: 0;
+  padding: 13px 14px;
+  border: 1px solid #504363;
+  border-radius: 12px;
+  background: #120f1d;
   color: white;
-  background: var(--panel-light);
-  border: 1px solid #504365;
-  box-shadow: none;
+  outline: none;
 }
-
+input:focus {
+  border-color: var(--pink);
+  box-shadow: 0 0 0 3px #ff83cb20;
+}
+label {
+  display: block;
+  color: var(--muted);
+  font-size: 13px;
+  margin: 12px 0 6px;
+}
+h1 {
+  font-size: clamp(32px, 6vw, 52px);
+  line-height: 1.1;
+  letter-spacing: -1.8px;
+  text-align: center;
+  color: var(--pink);
+  margin: 12px 0 8px;
+}
+h2 { margin: 0 0 12px; font-size: 22px; }
+h3 { margin: 0 0 8px; }
+p { margin: 7px 0; }
+small, .muted { color: var(--muted); }
+header { max-width: 1180px; margin: 0 auto 24px; text-align: center; }
+header p { color: var(--muted); }
+main { max-width: 1180px; margin: auto; }
+.panel {
+  padding: 22px;
+  margin: 16px 0;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: linear-gradient(145deg, #251e36, #191424);
+  box-shadow: 0 12px 38px #0002;
+}
+.hidden { display: none !important; }
 .row {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 9px;
+  align-items: center;
 }
-
-.row > * { flex: 1; }
-
-.hidden { display: none !important; }
-
-#roomCode {
-  color: var(--pink);
-  font-size: 28px;
-  font-weight: 850;
-  letter-spacing: 4px;
-}
-
-#playersList, #gamePlayers {
+.row > button { flex: 1; }
+.two-col {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 10px;
-  margin: 16px 0;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 14px;
 }
-
-.player {
-  background: #2b233d;
-  border: 1px solid #473657;
+.entry {
+  max-width: 480px;
+  margin: 30px auto;
+}
+.entry .row { margin-top: 16px; }
+.logo-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
   border-radius: 14px;
-  padding: 14px;
+  background: #ff83cb20;
+  border: 1px solid #ff83cb55;
+  font-size: 22px;
+  margin-bottom: 8px;
+}
+#roomCode {
+  display: inline-block;
+  color: var(--pink);
+  font-size: 30px;
+  letter-spacing: 5px;
+  font-weight: 900;
   overflow-wrap: anywhere;
 }
-
-.muted { color: var(--muted); }
-
-#game {
-  overflow-x: auto;
+.code-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
 }
-
+#message {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  border-radius: 12px;
+  padding: 12px 15px;
+  background: #28213b;
+  border: 1px solid var(--border);
+  margin: 14px 0;
+}
+#message:empty { display: none; }
+#message.error {
+  color: #ffc4ce;
+  border-color: #77404d;
+  background: #351d2a;
+}
+#message.success {
+  color: #b9f8d8;
+  border-color: #32674f;
+  background: #192e27;
+}
+.player-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 10px;
+  margin: 14px 0;
+}
+.player-card {
+  background: #2b233e;
+  border: 1px solid #493958;
+  border-radius: 14px;
+  padding: 14px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.player-card.me { border-color: var(--pink); }
+.player-card.active-turn { box-shadow: inset 0 0 0 1px var(--green); }
+.player-name { font-weight: 850; font-size: 16px; }
+.player-status { color: var(--muted); font-size: 13px; }
+.tag {
+  display: inline-block;
+  padding: 3px 8px;
+  margin: 4px 3px 0 0;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 800;
+  background: #40334f;
+  color: #eee1ff;
+}
+.tag.ready { background: #1f4937; color: #b5f7d5; }
+.tag.host { background: #53364c; color: #ffc4e8; }
+#game-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(260px, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+#board-wrap {
+  overflow-x: auto;
+  padding-bottom: 6px;
+}
 #board {
   display: grid;
   grid-template-columns: repeat(11, minmax(0, 1fr));
-  grid-template-rows: repeat(11, minmax(60px, auto));
+  grid-template-rows: repeat(11, minmax(66px, auto));
   gap: 4px;
-  min-width: 700px;
-  padding: 10px;
+  min-width: 690px;
+  padding: 9px;
   border-radius: 18px;
-  background: #110e1c;
-  border: 1px solid #504064;
+  background: #100d19;
+  border: 1px solid #493858;
 }
-
 .space {
+  position: relative;
   min-width: 0;
-  padding: 6px 3px;
+  padding: 5px 2px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -176,263 +234,670 @@ button:disabled {
   text-align: center;
   overflow-wrap: anywhere;
   background: #292239;
-  border: 1px solid #453752;
+  border: 1px solid #493958;
   border-radius: 7px;
   font-size: 10px;
+  line-height: 1.2;
 }
-
-.space strong {
-  font-size: 10px;
-  line-height: 1.25;
+.space strong { font-size: 10px; line-height: 1.25; }
+.space .price { color: var(--pink); font-weight: 850; }
+.space .tokens { color: var(--purple); font-size: 10px; font-weight: 900; }
+.space.owned { background: #433052; border-color: var(--purple); }
+.space.current { outline: 2px solid var(--pink); box-shadow: 0 0 13px #ff83cb66; }
+.space .owner-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--purple);
 }
-
-.space .price {
-  color: var(--pink);
-  font-weight: 750;
-}
-
-.space .tokens {
-  color: var(--purple);
-  font-weight: 800;
-}
-
-.space.owned {
-  background: #443054;
-  border-color: var(--purple);
-}
-
-.space.current {
-  outline: 2px solid var(--pink);
-  box-shadow: 0 0 14px #ff78c655;
-}
-
 .board-center {
   grid-area: 2 / 2 / 11 / 11;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   text-align: center;
   padding: 20px;
-  background:
-    radial-gradient(circle, #3b2850 0, #20192f 65%);
-  border: 1px solid #453354;
+  border: 1px solid #493858;
   border-radius: 14px;
+  background: radial-gradient(circle, #3c2850, #20192f 70%);
 }
-
 .board-center h2 {
+  font-size: clamp(24px, 4vw, 42px);
+  letter-spacing: -1px;
   color: var(--pink);
-  font-size: clamp(25px, 4vw, 42px);
   margin: 0;
 }
-
 .board-center p { color: var(--muted); }
-
+.stat {
+  padding: 14px;
+  background: #2b233e;
+  border: 1px solid #493958;
+  border-radius: 14px;
+  min-width: 0;
+}
+.stat .label { color: var(--muted); font-size: 12px; }
+.stat .value { font-size: 23px; font-weight: 900; overflow-wrap: anywhere; }
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+  margin: 12px 0;
+}
 #turnInfo {
   background: #302441;
   border: 1px solid #62446d;
-  padding: 13px 16px;
+  padding: 13px;
   border-radius: 12px;
+  margin: 12px 0;
 }
-
 #dice {
-  font-size: 22px;
-  font-weight: 800;
+  font-size: 25px;
+  font-weight: 900;
   color: var(--pink);
 }
-
-#currentSpace {
-  color: var(--muted);
+#owned { line-height: 1.9; overflow-wrap: anywhere; }
+.action-stack { display: grid; gap: 8px; }
+.action-stack button { width: 100%; margin: 0; }
+.section-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
 }
+#syncStatus { font-size: 12px; color: var(--green); }
+footer { text-align: center; color: var(--muted); padding: 24px 0 10px; font-size: 12px; }
 
-#owned {
-  line-height: 2;
-  overflow-wrap: anywhere;
-}
-
-#message {
-  border-radius: 12px;
-  overflow-wrap: anywhere;
-}
-
-@media (max-width: 600px) {
+@media (max-width: 780px) {
   body { padding: 12px; }
-  .panel { padding: 16px; border-radius: 17px; }
-  #entry { margin-top: 20px; }
-  .row { flex-direction: column; gap: 5px; }
-  .row button { width: 100%; margin: 2px 0; }
-  #roomCode { font-size: 23px; }
+  .panel { padding: 16px; border-radius: 16px; }
+  #game-layout { grid-template-columns: minmax(0, 1fr); }
+  .two-col { grid-template-columns: minmax(0, 1fr); }
+  .entry { margin-top: 18px; }
 }
+@media (max-width: 430px) {
+  .row { flex-direction: column; align-items: stretch; }
+  .row button { width: 100%; }
+  #roomCode { font-size: 25px; }
+}
+</style>
 </head>
+
 <body>
+<header>
+  <div class="logo-mark">🎲</div>
+  <h1>Friend Monopoly</h1>
+  <p>Roll the dice. Buy the streets. Beat your friends.</p>
+</header>
+
 <main>
-<h1>🎲 Friend Monopoly</h1>
+  <section id="entry" class="panel entry">
+    <h2>Let's play</h2>
+    <p class="muted">Enter your name to create a room or join your friends.</p>
 
-<section class="panel" id="entry">
-<h2>Join a game</h2>
-<label>Name</label><input id="name" maxlength="20" placeholder="Your name">
-<label>Room code</label><input id="code" maxlength="8" placeholder="Example: PINK7">
-<div class="row">
-<button id="create">Create room</button>
-<button class="secondary" id="join">Join room</button>
-</div>
-<p class="muted">Share the room code with your friends.</p>
-</section>
+    <label for="playerName">Your name</label>
+    <input id="playerName" maxlength="20" placeholder="e.g. Alex" autocomplete="nickname">
 
-<section class="panel hidden" id="lobby">
-<h2>Room <span id="roomCode"></span></h2>
-<div id="playersList"></div>
-<p id="lobbyStatus" class="muted">Waiting for players...</p>
-<div class="row">
-<button id="ready">I'm ready</button>
-<button id="start" class="hidden">Start game</button>
-<button id="leave" class="secondary">Leave</button>
-</div>
-</section>
+    <label for="roomCodeInput">Room code</label>
+    <input id="roomCodeInput" maxlength="8" placeholder="Leave blank to generate one" autocomplete="off" style="text-transform:uppercase">
 
-<section class="panel hidden" id="game">
-<h2>Monopoly board</h2>
-<p id="turnInfo"></p>
-<div id="board"></div>
-<div class="panel">
-<p id="dice">Dice: not rolled yet</p>
-<p id="currentSpace"></p>
-<div class="row">
-<button id="roll">Roll dice</button>
-<button id="buy">Buy property</button>
-<button id="endTurn" class="secondary">End turn</button>
-</div>
-</div>
-<h3>Players</h3>
-<div id="gamePlayers"></div>
-<h3>Owned properties</h3>
-<div id="owned"></div>
-</section>
+    <div class="row">
+      <button id="createBtn">Create room</button>
+      <button id="joinBtn" class="secondary">Join room</button>
+    </div>
 
-<div id="message" class="panel muted">Connecting...</div>
+    <p class="muted" style="font-size:12px;margin-top:16px">
+      Room codes use 4–8 letters or numbers. A room that stops being active will be cleaned up automatically.
+    </p>
+  </section>
+
+  <section id="lobby" class="hidden">
+    <div class="panel">
+      <div class="code-line">
+        <div>
+          <p class="muted">YOUR ROOM CODE</p>
+          <div id="roomCode">------</div>
+        </div>
+        <button id="copyCodeBtn" class="secondary">Copy code</button>
+      </div>
+      <p class="muted">Share this code with your friends so they can join.</p>
+    </div>
+
+    <div class="panel">
+      <div class="section-title">
+        <h2>Players</h2>
+        <span id="lobbyCount" class="muted">0 players</span>
+      </div>
+      <div id="playersList" class="player-list"></div>
+      <div id="lobbyRules" class="muted">Everyone must be ready before the host can start.</div>
+      <div class="row" style="margin-top:16px">
+        <button id="readyBtn" class="green">I'm ready</button>
+        <button id="startBtn" disabled>Start game</button>
+        <button id="leaveLobbyBtn" class="secondary">Leave room</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="game" class="hidden">
+    <div class="panel">
+      <div class="code-line">
+        <div>
+          <span class="muted">ROOM</span>
+          <strong id="gameRoomCode" style="color:var(--pink);letter-spacing:3px;margin-left:8px"></strong>
+        </div>
+        <span id="syncStatus">● Connected</span>
+      </div>
+      <div id="turnInfo">Waiting for game state...</div>
+    </div>
+
+    <div id="game-layout">
+      <section class="panel" style="padding:12px">
+        <div id="board-wrap">
+          <div id="board"></div>
+        </div>
+      </section>
+
+      <aside>
+        <section class="panel">
+          <h2>Your turn</h2>
+          <div class="stats">
+            <div class="stat">
+              <div class="label">YOUR MONEY</div>
+              <div id="moneyValue" class="value">$0</div>
+            </div>
+            <div class="stat">
+              <div class="label">YOUR POSITION</div>
+              <div id="positionValue" class="value">-</div>
+            </div>
+          </div>
+          <div id="dice">🎲 🎲</div>
+          <p id="diceResult" class="muted">Roll to move around the board.</p>
+          <div class="action-stack" style="margin-top:14px">
+            <button id="rollBtn">Roll dice</button>
+            <button id="buyBtn" class="green" disabled>Buy property</button>
+            <button id="endTurnBtn" class="secondary" disabled>End turn</button>
+          </div>
+          <div id="currentSpace" class="muted" style="margin-top:12px"></div>
+        </section>
+
+        <section class="panel">
+          <h2>Players</h2>
+          <div id="gamePlayers" class="player-list"></div>
+        </section>
+
+        <section class="panel">
+          <h2>Your properties</h2>
+          <div id="owned" class="muted">No properties yet.</div>
+        </section>
+
+        <section class="panel">
+          <button id="leaveGameBtn" class="danger" style="width:100%">Leave game</button>
+          <p class="muted" style="font-size:12px">Leaving a game ends your session on this page. If a room is abandoned, it will be cleaned up automatically.</p>
+        </section>
+      </aside>
+    </div>
+  </section>
+
+  <div id="message" role="status" aria-live="polite"></div>
 </main>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<footer>Friend Monopoly · Play fair and have fun</footer>
+
 <script>
 "use strict";
 
-// Use your existing Supabase project details.
+/* Paste the same project URL and PUBLIC anon/publishable key
+   that you already use in your working test.html. */
 const SUPABASE_URL = "https://yghlbyfkkwpzmvbkwbob.supabase.co";
 const SUPABASE_KEY = "sb_publishable_42gwT-h8zvxfbQeXv_HxRQ_BKxAOKY3";
 
 const $ = id => document.getElementById(id);
-const names = [
-"GO","Mediterranean Avenue","Community Chest","Baltic Avenue",
-"Income Tax","Reading Railroad","Oriental Avenue","Chance",
-"Vermont Avenue","Connecticut Avenue","Jail / Visiting",
-"St. Charles Place","Electric Company","States Avenue",
-"Virginia Avenue","Pennsylvania Railroad","St. James Place",
-"Community Chest","Tennessee Avenue","New York Avenue",
-"Free Parking","Kentucky Avenue","Chance","Indiana Avenue",
-"Illinois Avenue","B. & O. Railroad","Atlantic Avenue",
-"Ventnor Avenue","Water Works","Marvin Gardens","Go To Jail",
-"Pacific Avenue","North Carolina Avenue","Community Chest",
-"Pennsylvania Avenue","Short Line","Chance","Park Place",
-"Luxury Tax","Boardwalk"
-];
-const prices = [0,60,0,60,0,200,100,0,100,120,0,140,150,140,160,200,180,0,180,200,0,220,0,220,240,200,260,260,150,280,0,300,300,0,320,200,0,350,0,400];
-let db, userId, roomId, roomCode, hostId, ready = false, refreshTimer;
-let myPosition = 0, myMoney = 1500, hasRolled = false;
-let lastDice = null;
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-function say(s){ $("message").textContent = s; }
-function callRpc(fn,args){ return db.rpc(fn,args); }
+let userId = null;
+let roomId = null;
+let roomCode = null;
+let roomStatus = null;
+let roomCreatorId = null;
+let players = [];
+let room = null;
+let spaces = [];
+let properties = [];
+let pollTimer = null;
+let heartbeatTimer = null;
+let isBusy = false;
+let lastRenderedStatus = "";
+let lastDiceSignature = "";
 
-async function guest(){
-  const {data,error}=await db.auth.getSession();
-  if(error)throw error;
-  if(data.session){userId=data.session.user.id;return;}
-  const r=await db.auth.signInAnonymously();
-  if(r.error)throw r.error;
-  userId=r.data.user.id;
+const fallbackSpaces = [
+  ["GO", "go", 0, 0],
+  ["Mediterranean Avenue", "property", 60, 2],
+  ["Community Chest", "chest", 0, 0],
+  ["Baltic Avenue", "property", 60, 4],
+  ["Income Tax", "tax", 0, 0],
+  ["Reading Railroad", "railroad", 200, 25],
+  ["Oriental Avenue", "property", 100, 6],
+  ["Chance", "chance", 0, 0],
+  ["Vermont Avenue", "property", 100, 6],
+  ["Connecticut Avenue", "property", 120, 8],
+  ["Jail / Just Visiting", "jail", 0, 0],
+  ["St. Charles Place", "property", 140, 10],
+  ["Electric Company", "utility", 150, 0],
+  ["States Avenue", "property", 140, 10],
+  ["Virginia Avenue", "property", 160, 12],
+  ["Pennsylvania Railroad", "railroad", 200, 25],
+  ["St. James Place", "property", 180, 14],
+  ["Community Chest", "chest", 0, 0],
+  ["Tennessee Avenue", "property", 180, 14],
+  ["New York Avenue", "property", 200, 16],
+  ["Free Parking", "parking", 0, 0],
+  ["Kentucky Avenue", "property", 220, 18],
+  ["Chance", "chance", 0, 0],
+  ["Indiana Avenue", "property", 220, 18],
+  ["Illinois Avenue", "property", 240, 20],
+  ["B&O Railroad", "railroad", 200, 25],
+  ["Atlantic Avenue", "property", 260, 22],
+  ["Ventnor Avenue", "property", 260, 22],
+  ["Water Works", "utility", 150, 0],
+  ["Marvin Gardens", "property", 280, 24],
+  ["Go To Jail", "gotojail", 0, 0],
+  ["Pacific Avenue", "property", 300, 26],
+  ["North Carolina Avenue", "property", 300, 26],
+  ["Community Chest", "chest", 0, 0],
+  ["Pennsylvania Avenue", "property", 320, 28],
+  ["Short Line", "railroad", 200, 25],
+  ["Chance", "chance", 0, 0],
+  ["Park Place", "property", 350, 35],
+  ["Luxury Tax", "tax", 0, 0],
+  ["Boardwalk", "property", 400, 50]
+].map((s, i) => ({
+  space_index: i,
+  name: s[0],
+  space_type: s[1],
+  price: s[2],
+  rent: s[3]
+}));
+
+function showMessage(text, kind = "") {
+  const box = $("message");
+  box.textContent = text || "";
+  box.className = kind;
+  if (text) box.id = "message";
 }
 
-async function enterRoom(action){
-  try{
-    const name=$("name").value.trim();
-    const code=$("code").value.trim().toUpperCase();
-    if(!name)throw Error("Enter your name.");
-    if(!/^[A-Z0-9]{4,8}$/.test(code))throw Error("Room code must be 4–8 letters or numbers.");
-    await guest();
-    const fn=action==="create"?"create_game_room":"join_game_room";
-    const {data,error}=await callRpc(fn,{p_room_code:code,p_player_name:name});
-    if(error)throw error;
-    roomId=data;
-    await loadRoom();
-    $("entry").classList.add("hidden");
-    $("lobby").classList.remove("hidden");
-    if(refreshTimer)clearInterval(refreshTimer);
-    refreshTimer=setInterval(()=>loadRoom().catch(e=>say(e.message)),2500);
-    say("Connected to "+roomCode+".");
-  }catch(e){say("Couldn't "+action+" room: "+e.message);}
+function clearMessage() {
+  showMessage("");
 }
 
-async function loadRoom(){
-  if(!roomId)return;
-  const rr=await db.from("game_rooms")
-    .select("id,room_code,status,creator_id,current_turn_user_id,last_dice_1,last_dice_2")
-    .eq("id",roomId).single();
-  if(rr.error)throw rr.error;
-  const room=rr.data;
-  roomCode=room.room_code;hostId=room.creator_id;
-  $("roomCode").textContent=roomCode;
+function setBusy(value) {
+  isBusy = value;
+  $("createBtn").disabled = value;
+  $("joinBtn").disabled = value;
+  $("readyBtn").disabled = value;
+  $("startBtn").disabled = value || $("startBtn").disabled;
+}
 
-  const pr=await db.from("game_players")
-    .select("user_id,player_name,money,board_position,is_ready,has_rolled,turn_order")
-    .eq("room_id",roomId).order("joined_at");
-  if(pr.error)throw pr.error;
-  const players=pr.data;
-  const me=players.find(p=>p.user_id===userId);
-  if(me){myPosition=me.board_position;myMoney=me.money;ready=me.is_ready;hasRolled=me.has_rolled;}
+function randomCode() {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let out = "";
+  for (let i = 0; i < 6; i++) {
+    out += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return out;
+}
 
-  $("playersList").innerHTML="";
-  players.forEach(p=>{
-    const d=document.createElement("div");d.className="player";
-    d.textContent=p.player_name+(p.user_id===hostId?" (Host)":"")+
-      (p.is_ready?" ✓ Ready":" — Not ready");
-    $("playersList").append(d);
-  });
-  $("ready").textContent=ready?"Ready ✓":"I'm ready";
-  $("start").classList.toggle("hidden",hostId!==userId||room.status!=="waiting");
-  $("lobbyStatus").textContent=hostId===userId
-    ?"You are the host. Everyone must be ready."
-    :"Waiting for the host to start.";
+function cleanCode(value) {
+  return String(value || "").trim().toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 8);
+}
 
-  if(room.status==="playing"){
-    $("lobby").classList.add("hidden");
-    $("game").classList.remove("hidden");
-    await drawBoard(players);
-    await drawProperties();
-    const current=players.find(p=>p.user_id===room.current_turn_user_id);
-    $("turnInfo").textContent=current
-      ? "Current turn: "+current.player_name+(current.user_id===userId?" (your turn)":"")
-      :"Waiting for turn information.";
-    $("roll").disabled=room.current_turn_user_id!==userId||hasRolled;
-    $("buy").disabled=room.current_turn_user_id!==userId||!hasRolled;
-    $("endTurn").disabled=room.current_turn_user_id!==userId||!hasRolled;
-    $("dice").textContent=room.last_dice_1
-      ?"Last roll: "+room.last_dice_1+" + "+room.last_dice_2
-      :"Roll the dice to move.";
+function money(value) {
+  return "$" + Number(value || 0).toLocaleString("en-US");
+}
+
+function playerByUser(id) {
+  return players.find(p => p.user_id === id);
+}
+
+function isMyTurn() {
+  return !!room && room.current_turn_user_id === userId;
+}
+
+function myPlayer() {
+  return playerByUser(userId);
+}
+
+function spaceAt(index) {
+  return spaces.find(s => Number(s.space_index) === Number(index)) || fallbackSpaces[index] || fallbackSpaces[0];
+}
+
+function setSection(section) {
+  $("entry").classList.toggle("hidden", section !== "entry");
+  $("lobby").classList.toggle("hidden", section !== "lobby");
+  $("game").classList.toggle("hidden", section !== "game");
+}
+
+async function ensureGuest() {
+  const { data: { session }, error: sessionError } = await db.auth.getSession();
+  if (sessionError) throw sessionError;
+
+  if (session && session.user) {
+    userId = session.user.id;
+    return;
+  }
+
+  const { data, error } = await db.auth.signInAnonymously();
+  if (error) {
+    throw new Error(
+      "Guest sign-in failed. In Supabase, check Authentication → Sign In / Providers → Anonymous sign-ins.\n" +
+      error.message
+    );
+  }
+  userId = data.user.id;
+}
+
+async function runCleanup() {
+  const { error } = await db.rpc("cleanup_abandoned_rooms");
+  if (error) {
+    console.warn("Room cleanup could not run:", error.message);
   }
 }
 
+async function enterRoom(action) {
+  if (isBusy) return;
+  clearMessage();
 
-async function drawBoard(players) {
-  const ownR = await db.from("game_properties")
-    .select("space_index,owner_user_id")
+  const name = $("playerName").value.trim();
+  if (!name) {
+    showMessage("Please enter your name first.", "error");
+    $("playerName").focus();
+    return;
+  }
+  if (name.length > 20) {
+    showMessage("Your name must be 20 characters or fewer.", "error");
+    return;
+  }
+
+  setBusy(true);
+
+  try {
+    await ensureGuest();
+    await runCleanup();
+
+    let code = cleanCode($("roomCodeInput").value);
+    if (action === "create" && !code) code = randomCode();
+
+    if (action === "join" && !code) {
+      throw new Error("Enter the room code your friend shared with you.");
+    }
+    if (code.length < 4 || code.length > 8) {
+      throw new Error("Room codes must be 4–8 letters or numbers.");
+    }
+
+    const rpcName = action === "create" ? "create_game_room" : "join_game_room";
+    const { data, error } = await db.rpc(rpcName, {
+      p_room_code: code,
+      p_player_name: name
+    });
+
+    if (error) {
+      const msg = error.message || "Unknown error";
+      if (/duplicate key|unique constraint|already exists/i.test(msg)) {
+        throw new Error(
+          "That code is already being used by an active room. Try another code, or wait a little while if the old room was just closed.\n\n" + msg
+        );
+      }
+      throw new Error(msg);
+    }
+
+    roomId = data;
+    roomCode = code;
+    $("roomCodeInput").value = code;
+
+    const { data: roomData, error: roomError } = await db
+      .from("game_rooms")
+      .select("*")
+      .eq("id", roomId)
+      .single();
+
+    if (roomError) throw roomError;
+    room = roomData;
+    roomStatus = room.status;
+    roomCreatorId = room.creator_id;
+
+    setSection(room.status === "playing" ? "game" : "lobby");
+    startBackgroundTasks();
+    await loadRoom();
+  } catch (err) {
+    showMessage(err.message || String(err), "error");
+  } finally {
+    setBusy(false);
+  }
+}
+
+function stopBackgroundTasks() {
+  if (pollTimer) clearInterval(pollTimer);
+  if (heartbeatTimer) clearInterval(heartbeatTimer);
+  pollTimer = null;
+  heartbeatTimer = null;
+}
+
+function startBackgroundTasks() {
+  stopBackgroundTasks();
+
+  // Refresh room/player data so every device sees updates.
+  pollTimer = setInterval(() => {
+    loadRoom().catch(err => {
+      $("syncStatus").textContent = "● Sync issue";
+      console.warn(err);
+    });
+  }, 2500);
+
+  // Tell the database this room is still active.
+  heartbeatTimer = setInterval(async () => {
+    if (!roomId || !userId) return;
+    try {
+      const { error } = await db.rpc("heartbeat_room", { p_room_id: roomId });
+      if (error) console.warn("Heartbeat:", error.message);
+    } catch (err) {
+      console.warn("Heartbeat failed:", err);
+    }
+  }, 15000);
+}
+
+async function loadRoom() {
+  if (!roomId) return;
+
+  const { data: r, error: rError } = await db
+    .from("game_rooms")
+    .select("*")
+    .eq("id", roomId)
+    .single();
+
+  if (rError) throw rError;
+
+  room = r;
+  roomStatus = r.status;
+  roomCode = r.room_code;
+  roomCreatorId = r.creator_id;
+
+  if (r.status === "finished") {
+    stopBackgroundTasks();
+    setSection("entry");
+    roomId = null;
+    showMessage("This room has finished or was inactive for too long. Create a new room or join an active one.", "error");
+    return;
+  }
+
+  const { data: playerRows, error: pError } = await db
+    .from("game_players")
+    .select("*")
+    .eq("room_id", roomId)
+    .order("joined_at", { ascending: true });
+
+  if (pError) throw pError;
+  players = playerRows || [];
+
+  const { data: propertyRows, error: propError } = await db
+    .from("game_properties")
+    .select("*")
     .eq("room_id", roomId);
 
-  if (ownR.error) throw ownR.error;
+  if (propError) throw propError;
+  properties = propertyRows || [];
 
-  const owned = new Map(
-    ownR.data.map(p => [p.space_index, p.owner_user_id])
-  );
+  const { data: spaceRows, error: spacesError } = await db
+    .from("game_spaces")
+    .select("*")
+    .order("space_index", { ascending: true });
 
+  spaces = !spacesError && spaceRows && spaceRows.length
+    ? spaceRows.map(s => ({
+        ...s,
+        name: s.name || s.space_name || fallbackSpaces[Number(s.space_index)]?.name || ("Space " + s.space_index),
+        space_type: s.space_type || s.type || fallbackSpaces[Number(s.space_index)]?.space_type || "property",
+        price: Number(s.price || 0),
+        rent: Number(s.rent || 0)
+      }))
+    : fallbackSpaces;
+
+  $("roomCode").textContent = roomCode || "------";
+  $("gameRoomCode").textContent = roomCode || "------";
+  $("lobbyCount").textContent = players.length + (players.length === 1 ? " player" : " players");
+  $("syncStatus").textContent = "● Connected";
+
+  if (r.status === "playing") {
+    setSection("game");
+    renderGame();
+  } else {
+    setSection("lobby");
+    renderLobby();
+  }
+
+  lastRenderedStatus = r.status;
+}
+
+function renderLobby() {
+  const host = userId === roomCreatorId;
+  const allReady = players.length >= 2 && players.every(p => p.is_ready);
+  const me = myPlayer();
+
+  $("playersList").innerHTML = "";
+  players.forEach(p => {
+    const card = document.createElement("div");
+    card.className = "player-card" + (p.user_id === userId ? " me" : "");
+    const name = document.createElement("div");
+    name.className = "player-name";
+    name.textContent = p.player_name;
+
+    const status = document.createElement("div");
+    status.className = "player-status";
+    status.textContent = p.is_ready ? "Ready to play" : "Not ready yet";
+
+    card.append(name, status);
+
+    if (p.user_id === roomCreatorId) {
+      const tag = document.createElement("span");
+      tag.className = "tag host";
+      tag.textContent = "HOST";
+      card.append(tag);
+    }
+    const readyTag = document.createElement("span");
+    readyTag.className = "tag" + (p.is_ready ? " ready" : "");
+    readyTag.textContent = p.is_ready ? "READY" : "WAITING";
+    card.append(readyTag);
+    $("playersList").append(card);
+  });
+
+  $("readyBtn").textContent = me && me.is_ready ? "Cancel ready" : "I'm ready";
+  $("startBtn").classList.toggle("hidden", !host);
+  $("startBtn").disabled = !host || !allReady || isBusy;
+  $("lobbyRules").textContent = host
+    ? (allReady ? "Everyone is ready. Start whenever you're set!" : "You are the host. Wait for at least two players and make sure everyone is ready.")
+    : "The host can start once at least two players have joined and everyone is ready.";
+}
+
+function renderGame() {
+  const me = myPlayer();
+  const myPos = me ? Number(me.board_position || 0) : 0;
+  const myMoney = me ? Number(me.money || 0) : 0;
+  const myTurn = isMyTurn();
+  const rolled = !!(me && me.has_rolled);
+
+  $("moneyValue").textContent = money(myMoney);
+  $("positionValue").textContent = String(myPos);
+  $("turnInfo").textContent = myTurn
+    ? (rolled ? "It's your turn. You can buy a property if it's available, then end your turn." : "It's your turn. Roll the dice to move.")
+    : "Waiting for " + ((players.find(p => p.user_id === room.current_turn_user_id) || {}).player_name || "the next player") + " to play.";
+
+  const diceSignature = String(room.last_dice_1) + "-" + String(room.last_dice_2);
+  if (room.last_dice_1 != null && room.last_dice_2 != null) {
+    $("dice").textContent = "🎲 " + room.last_dice_1 + "  +  🎲 " + room.last_dice_2;
+    if (diceSignature !== lastDiceSignature) {
+      $("diceResult").textContent = "Last roll: " + room.last_dice_1 + " + " + room.last_dice_2 + " = " + (Number(room.last_dice_1) + Number(room.last_dice_2));
+      lastDiceSignature = diceSignature;
+    }
+  } else {
+    $("dice").textContent = "🎲 🎲";
+  }
+
+  $("rollBtn").disabled = !myTurn || rolled || isBusy;
+  $("endTurnBtn").disabled = !myTurn || !rolled || isBusy;
+
+  const ownedMap = new Map(properties.map(p => [Number(p.space_index), p.owner_user_id]));
+  const current = spaceAt(myPos);
+  const owner = ownedMap.get(myPos);
+  const buyableType = ["property", "railroad", "utility"].includes(String(current.space_type || "").toLowerCase());
+  const canBuy = myTurn && rolled && buyableType && Number(current.price) > 0 && !owner;
+
+  $("buyBtn").disabled = !canBuy || isBusy;
+  $("buyBtn").textContent = canBuy ? "Buy for " + money(current.price) : "Buy property";
+
+  $("currentSpace").textContent = "You're on " + current.name + (owner ? " · Owned by " + ((players.find(p => p.user_id === owner) || {}).player_name || "another player") : "");
+
+  $("gamePlayers").innerHTML = "";
+  players.forEach(p => {
+    const card = document.createElement("div");
+    card.className = "player-card" +
+      (p.user_id === userId ? " me" : "") +
+      (p.user_id === room.current_turn_user_id ? " active-turn" : "");
+
+    const name = document.createElement("div");
+    name.className = "player-name";
+    name.textContent = p.player_name;
+
+    const balance = document.createElement("div");
+    balance.className = "player-status";
+    balance.textContent = money(p.money);
+
+    const pos = document.createElement("div");
+    pos.className = "player-status";
+    pos.textContent = "Space " + p.board_position;
+
+    card.append(name, balance, pos);
+    if (p.user_id === room.current_turn_user_id) {
+      const tag = document.createElement("span");
+      tag.className = "tag ready";
+      tag.textContent = "TURN";
+      card.append(tag);
+    }
+    $("gamePlayers").append(card);
+  });
+
+  const myProperties = properties.filter(p => p.owner_user_id === userId);
+  $("owned").innerHTML = "";
+  if (!myProperties.length) {
+    $("owned").textContent = "No properties yet. Land on an available property and buy it.";
+  } else {
+    myProperties.forEach(p => {
+      const line = document.createElement("div");
+      line.textContent = "◆ " + spaceAt(Number(p.space_index)).name;
+      $("owned").append(line);
+    });
+  }
+
+  drawBoard();
+}
+
+function drawBoard() {
   const board = $("board");
   board.innerHTML = "";
 
@@ -445,14 +910,18 @@ async function drawBoard(players) {
   const subtitle = document.createElement("p");
   subtitle.textContent = "Roll the dice. Make your fortune.";
 
-  center.append(heading, subtitle);
+  const roomLine = document.createElement("p");
+  roomLine.textContent = "Room " + (roomCode || "");
+
+  center.append(heading, subtitle, roomLine);
   board.append(center);
 
-  for (let i = 0; i < 40; i++) {
-    const d = document.createElement("div");
-    d.className = "space";
+  const ownedMap = new Map(properties.map(p => [Number(p.space_index), p.owner_user_id]));
 
-    // Arrange all 40 spaces around the outside of the board.
+  for (let i = 0; i < 40; i++) {
+    const s = spaceAt(i);
+    const tile = document.createElement("div");
+    tile.className = "space";
     let row, col;
 
     if (i <= 10) {
@@ -469,122 +938,191 @@ async function drawBoard(players) {
       col = 11;
     }
 
-    d.style.gridRow = row;
-    d.style.gridColumn = col;
+    tile.style.gridRow = row;
+    tile.style.gridColumn = col;
 
-    const onSpace = players.filter(
-      p => p.board_position === i
-    );
+    const onSpace = players.filter(p => Number(p.board_position) === i);
+    if (onSpace.some(p => p.user_id === userId)) tile.classList.add("current");
 
-    if (onSpace.some(p => p.user_id === userId)) {
-      d.classList.add("current");
-    }
-
-    if (owned.has(i)) d.classList.add("owned");
+    const owner = ownedMap.get(i);
+    if (owner) tile.classList.add("owned");
 
     const title = document.createElement("strong");
-    title.textContent = names[i];
+    title.textContent = s.name;
 
     const price = document.createElement("div");
     price.className = "price";
-    price.textContent = prices[i] ? "$" + prices[i] : "";
+    price.textContent = Number(s.price) > 0 ? money(s.price) : "";
 
     const tokens = document.createElement("div");
     tokens.className = "tokens";
-    tokens.textContent = onSpace.map(p =>
-      p.player_name.slice(0, 3)
-    ).join(" · ");
+    tokens.textContent = onSpace.map(p => p.player_name.slice(0, 3)).join(" · ");
 
-    d.append(title, price, tokens);
-    board.append(d);
+    tile.append(title);
+    if (owner) {
+      const dot = document.createElement("span");
+      dot.className = "owner-dot";
+      tile.append(dot);
+    }
+    tile.append(price, tokens);
+    board.append(tile);
+  }
+}
+
+async function setReady() {
+  if (!roomId || isBusy) return;
+  const me = myPlayer();
+  if (!me) return;
+
+  setBusy(true);
+  try {
+    const { error } = await db.rpc("set_player_ready", {
+      p_room_id: roomId,
+      p_is_ready: !me.is_ready
+    });
+    if (error) throw error;
+    await loadRoom();
+  } catch (err) {
+    showMessage(err.message || String(err), "error");
+  } finally {
+    setBusy(false);
+  }
+}
+
+async function startGame() {
+  if (!roomId || isBusy) return;
+  setBusy(true);
+  try {
+    const { error } = await db.rpc("start_game", { p_room_id: roomId });
+    if (error) throw error;
+    showMessage("Game started! Good luck.", "success");
+    await loadRoom();
+  } catch (err) {
+    showMessage(err.message || String(err), "error");
+  } finally {
+    setBusy(false);
+  }
+}
+
+async function rollDice() {
+  if (!roomId || isBusy) return;
+  setBusy(true);
+  try {
+    const { data, error } = await db.rpc("roll_turn", { p_room_id: roomId });
+    if (error) throw error;
+    await loadRoom();
+    if (data && typeof data === "object") {
+      const d1 = data.dice_1 ?? data.last_dice_1;
+      const d2 = data.dice_2 ?? data.last_dice_2;
+      if (d1 != null && d2 != null) {
+        showMessage("You rolled " + d1 + " + " + d2 + " = " + (Number(d1) + Number(d2)) + ".", "success");
+      }
+    }
+  } catch (err) {
+    showMessage(err.message || String(err), "error");
+  } finally {
+    setBusy(false);
+    if (roomId) await loadRoom().catch(console.warn);
+  }
+}
+
+async function buyProperty() {
+  if (!roomId || isBusy) return;
+  setBusy(true);
+  try {
+    const { error } = await db.rpc("buy_property", { p_room_id: roomId });
+    if (error) throw error;
+    showMessage("Property purchased!", "success");
+    await loadRoom();
+  } catch (err) {
+    showMessage(err.message || String(err), "error");
+  } finally {
+    setBusy(false);
+    if (roomId) await loadRoom().catch(console.warn);
+  }
+}
+
+async function endTurn() {
+  if (!roomId || isBusy) return;
+  setBusy(true);
+  try {
+    const { error } = await db.rpc("end_turn", { p_room_id: roomId });
+    if (error) throw error;
+    showMessage("Turn ended.", "success");
+    await loadRoom();
+  } catch (err) {
+    showMessage(err.message || String(err), "error");
+  } finally {
+    setBusy(false);
+    if (roomId) await loadRoom().catch(console.warn);
+  }
+}
+
+async function leaveRoom() {
+  stopBackgroundTasks();
+  roomId = null;
+  roomCode = null;
+  room = null;
+  players = [];
+  properties = [];
+  spaces = [];
+  roomStatus = null;
+  roomCreatorId = null;
+  lastDiceSignature = "";
+  setSection("entry");
+  showMessage("You left the room on this page. If nobody remains active, the old room will be cleaned up automatically.", "success");
+}
+
+async function copyRoomCode() {
+  if (!roomCode) return;
+  try {
+    await navigator.clipboard.writeText(roomCode);
+    showMessage("Room code copied: " + roomCode, "success");
+  } catch {
+    showMessage("Your room code is " + roomCode + ". Copy it manually.", "success");
+  }
+}
+
+$("createBtn").addEventListener("click", () => enterRoom("create"));
+$("joinBtn").addEventListener("click", () => enterRoom("join"));
+$("readyBtn").addEventListener("click", setReady);
+$("startBtn").addEventListener("click", startGame);
+$("rollBtn").addEventListener("click", rollDice);
+$("buyBtn").addEventListener("click", buyProperty);
+$("endTurnBtn").addEventListener("click", endTurn);
+$("copyCodeBtn").addEventListener("click", copyRoomCode);
+$("leaveLobbyBtn").addEventListener("click", leaveRoom);
+$("leaveGameBtn").addEventListener("click", leaveRoom);
+
+$("roomCodeInput").addEventListener("input", () => {
+  $("roomCodeInput").value = cleanCode($("roomCodeInput").value);
+});
+
+$("playerName").addEventListener("keydown", e => {
+  if (e.key === "Enter") enterRoom("create");
+});
+$("roomCodeInput").addEventListener("keydown", e => {
+  if (e.key === "Enter") enterRoom("join");
+});
+
+window.addEventListener("pagehide", () => {
+  // Do not rely on this to clean up the room. Browsers do not guarantee
+  // that network requests finish when a tab closes. The heartbeat timeout
+  // handles abandoned rooms on the database side.
+  stopBackgroundTasks();
+});
+
+(async function init() {
+  if (SUPABASE_URL.includes("PASTE_YOUR") || SUPABASE_KEY.includes("PASTE_YOUR")) {
+    showMessage("Before using the game, replace SUPABASE_URL and SUPABASE_KEY in test.html with the values from your existing working file.", "error");
+    return;
   }
 
-  $("currentSpace").textContent =
-    "You're on " + names[myPosition] +
-    " · Balance: $" + myMoney.toLocaleString();
-}
-
-
-async function drawProperties(){
-  const r=await db.from("game_properties")
-    .select("space_index,owner_user_id").eq("room_id",roomId);
-  if(r.error)throw r.error;
-  const p=await db.from("game_players")
-    .select("user_id,player_name").eq("room_id",roomId);
-  if(p.error)throw p.error;
-  $("owned").textContent=r.data.length?r.data.map(x=>{
-    const owner=p.data.find(y=>y.user_id===x.owner_user_id);
-    return names[x.space_index]+" — "+(owner?owner.player_name:"Unknown");
-  }).join(" | "):"No properties owned yet.";
-}
-
-async function setReady(){
-  try{
-    const {error}=await callRpc("set_player_ready",{p_room_id:roomId,p_is_ready:!ready});
-    if(error)throw error;
-    await loadRoom();
-  }catch(e){say("Ready error: "+e.message);}
-}
-
-async function startGame(){
-  try{
-    const {error}=await callRpc("start_game",{p_room_id:roomId});
-    if(error)throw error;
-    await loadRoom();
-  }catch(e){say("Start error: "+e.message);}
-}
-
-async function roll(){
-  try{
-    const {data,error}=await callRpc("roll_turn",{p_room_id:roomId});
-    if(error)throw error;
-    lastDice=data[0];
-    say("You rolled "+lastDice.dice_1+" and "+lastDice.dice_2+".");
-    await loadRoom();
-  }catch(e){say("Roll error: "+e.message);}
-}
-
-async function buy(){
-  try{
-    const {error}=await callRpc("buy_property",{p_room_id:roomId});
-    if(error)throw error;
-    say("Property purchased!");
-    await loadRoom();
-  }catch(e){say("Purchase error: "+e.message);}
-}
-
-async function endTurn(){
-  try{
-    const {error}=await callRpc("end_turn",{p_room_id:roomId});
-    if(error)throw error;
-    say("Turn ended.");
-    await loadRoom();
-  }catch(e){say("End-turn error: "+e.message);}
-}
-
-$("create").onclick=()=>enterRoom("create");
-$("join").onclick=()=>enterRoom("join");
-$("ready").onclick=setReady;
-$("start").onclick=startGame;
-$("roll").onclick=roll;
-$("buy").onclick=buy;
-$("endTurn").onclick=endTurn;
-$("leave").onclick=()=>{
-  if(refreshTimer)clearInterval(refreshTimer);
-  refreshTimer=null;roomId=null;
-  $("lobby").classList.add("hidden");
-  $("game").classList.add("hidden");
-  $("entry").classList.remove("hidden");
-  say("Left the lobby screen. Your player record remains in the room.");
-};
-
-(async()=>{
-  if(!window.supabase){say("Supabase failed to load.");return;}
-  if(SUPABASE_URL.includes("PASTE_YOUR")||SUPABASE_KEY.includes("PASTE_YOUR")){
-    say("Add your real Supabase URL and public publishable key first.");return;
+  try {
+    await ensureGuest();
+  } catch (err) {
+    showMessage(err.message || String(err), "error");
   }
-  db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-  say("Ready to play!");
 })();
 </script>
 </body>
