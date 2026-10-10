@@ -1,0 +1,147 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Friend Monopoly - Multiplayer Test</title>
+  <style>
+    body {
+      background: #171522;
+      color: white;
+      font: 16px Arial, sans-serif;
+      max-width: 600px;
+      margin: 35px auto;
+      padding: 20px;
+    }
+    h1 { color: #ff79bd; }
+    input, button {
+      box-sizing: border-box;
+      width: 100%;
+      padding: 12px;
+      margin: 7px 0;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    input { border: 1px solid #888; }
+    button {
+      background: #ff79bd;
+      border: 0;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    pre {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      background: #282536;
+      padding: 14px;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎲 Friend Monopoly</h1>
+  <p>Multiplayer connection test</p>
+
+  <label for="name">Your player name</label>
+  <input id="name" maxlength="20" placeholder="e.g. Jisoo">
+
+  <label for="code">Room code</label>
+  <input id="code" maxlength="8" placeholder="e.g. PINK7">
+
+  <button id="create">Create room</button>
+  <button id="join">Join room</button>
+
+  <pre id="output">Enter your name and room code to begin.</pre>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // Replace these two placeholders with your PUBLIC project details.
+    const SUPABASE_URL = "PASTE_YOUR_PROJECT_URL_HERE";
+    const SUPABASE_KEY = "PASTE_YOUR_PUBLISHABLE_KEY_HERE";
+
+    const db = supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+
+    const output = document.getElementById("output");
+
+    function show(message) {
+      output.textContent = message;
+    }
+
+    async function ensureGuest() {
+      const { data, error } = await db.auth.getSession();
+      if (error) throw error;
+
+      if (!data.session) {
+        const result = await db.auth.signInAnonymously();
+        if (result.error) throw result.error;
+      }
+    }
+
+    async function runAction(action) {
+      try {
+        show("Connecting...");
+        const name = document.getElementById("name").value.trim();
+        const code = document.getElementById("code").value.trim().toUpperCase();
+
+        if (!name || !/^[A-Z0-9]{4,8}$/.test(code)) {
+          throw new Error("Enter a player name and a room code of 4-8 letters or numbers.");
+        }
+
+        await ensureGuest();
+
+        const functionName = action === "create"
+          ? "create_game_room"
+          : "join_game_room";
+
+        const { data: roomId, error } = await db.rpc(functionName, {
+          p_room_code: code,
+          p_player_name: name
+        });
+
+        if (error) throw error;
+
+        const { data: room, error: roomError } = await db
+          .from("game_rooms")
+          .select("room_code, status")
+          .eq("id", roomId)
+          .single();
+
+        if (roomError) throw roomError;
+
+        const { data: players, error: playersError } = await db
+          .from("game_players")
+          .select("player_name, money, board_position")
+          .eq("room_id", roomId)
+          .order("joined_at");
+
+        if (playersError) throw playersError;
+
+        show(
+          "SUCCESS!\n\n" +
+          "Action: " + action + "\n" +
+          "Room: " + room.room_code + "\n" +
+          "Status: " + room.status + "\n\n" +
+          "Players:\n" +
+          players.map(p =>
+            p.player_name + " | $" + p.money +
+            " | Position " + p.board_position
+          ).join("\n") +
+          "\n\nYour guest session is working."
+        );
+      } catch (error) {
+        show("TEST FAILED\n\n" + error.message);
+      }
+    }
+
+    document.getElementById("create").onclick =
+      () => runAction("create");
+
+    document.getElementById("join").onclick =
+      () => runAction("join");
+  </script>
+</body>
+</html>
