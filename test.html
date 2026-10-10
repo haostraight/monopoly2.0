@@ -118,31 +118,41 @@
         }
       }
 
-      async function refreshPlayers() {
-        if (!currentRoomId) return;
+      
+async function refreshPlayers() {
+  if (!currentRoomId) return;
 
-        const { data: players, error } = await db
-          .from("game_players")
-          .select("player_name, money, board_position")
-          .eq("room_id", currentRoomId)
-          .order("joined_at", { ascending: true });
+  try {
+    const { data: players, error } = await db
+      .from("game_players")
+      .select("player_name, money, board_position")
+      .eq("room_id", currentRoomId)
+      .order("joined_at", { ascending: true });
 
-        if (error) throw error;
+    if (error) throw error;
 
-        const lines = players.map((p, index) =>
-          (index + 1) + ". " + p.player_name +
-          " | $" + p.money +
-          " | Position " + p.board_position
-        );
+    const lines = (players || []).map((p, index) =>
+      (index + 1) + ". " + p.player_name +
+      " | $" + p.money +
+      " | Position " + p.board_position
+    );
 
-        show(
-          "Room: " + currentRoomCode +
-          "\nPlayers: " + players.length +
-          "\n\n" +
-          (lines.join("\n") || "No players found.") +
-          "\n\nUpdating automatically every 3 seconds."
-        );
-      }
+    show(
+      "Room: " + currentRoomCode +
+      "\nPlayers: " + lines.length +
+      "\n\n" +
+      (lines.join("\n") || "No players found.") +
+      "\n\nUpdating automatically every 3 seconds."
+    );
+  } catch (error) {
+    console.error("Player refresh failed:", error);
+    show(
+      "Could not refresh players.\n\n" +
+      (error.message || String(error))
+    );
+  }
+}
+
 
       async function runAction(action) {
         if (actionInProgress) return;
