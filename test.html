@@ -369,35 +369,26 @@ async function toggleReady() {
 }
 
 
+
 async function startGame() {
   if (!isHost || !currentRoomId) return;
 
   $("startButton").disabled = true;
+
   try {
-    const { data: players, error: playersError } = await db
-      .from("game_players")
-      .select("user_id, is_ready")
-      .eq("room_id", currentRoomId);
-
-    if (playersError) throw playersError;
-    if (players.length < 2 || !players.every(p => p.is_ready)) {
-      throw new Error("At least two players must join and everyone must be ready.");
-    }
-
-    const { error } = await db
-      .from("game_rooms")
-      .update({ status: "playing" })
-      .eq("id", currentRoomId)
-      .eq("creator_id", currentUserId)
-      .eq("status", "waiting");
+    const { error } = await db.rpc("start_game", {
+      p_room_id: currentRoomId
+    });
 
     if (error) throw error;
+
     await refreshLobby();
   } catch (error) {
     show("Couldn't start game: " + error.message);
     $("startButton").disabled = false;
   }
 }
+
 
 $("create").addEventListener("click", () => runAction("create"));
 $("join").addEventListener("click", () => runAction("join"));
