@@ -3,437 +3,294 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Friend Monopoly - Lobby</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Friend Monopoly</title>
 <style>
-:root {
-  color-scheme: dark;
-  --bg: #15121f;
-  --panel: #211c30;
-  --pink: #ff79bd;
-  --purple: #a78bfa;
-  --muted: #bcb5ce;
-  --green: #78e6ad;
-}
-* { box-sizing: border-box; }
-body {
-  margin: 0;
-  min-height: 100vh;
-  padding: 28px 16px;
-  background:
-    radial-gradient(circle at top left, #38204c 0, transparent 38%),
-    var(--bg);
-  color: white;
-  font: 16px Arial, sans-serif;
-}
-main { max-width: 680px; margin: 0 auto; }
-header { text-align: center; margin: 12px 0 28px; }
-.logo { font-size: 44px; }
-h1 { color: var(--pink); margin: 8px 0; }
-.subtitle { color: var(--muted); }
-.panel {
-  background: var(--panel);
-  border: 1px solid #453854;
-  border-radius: 18px;
-  padding: 22px;
-  margin-bottom: 16px;
-}
-h2 { margin-top: 0; font-size: 20px; }
-label { display: block; margin: 14px 0 6px; color: var(--muted); }
-input {
-  width: 100%;
-  padding: 13px;
-  background: #171321;
-  border: 1px solid #554967;
-  border-radius: 10px;
-  color: white;
-  font-size: 16px;
-}
-button {
-  padding: 13px 16px;
-  border: 0;
-  border-radius: 10px;
-  font-weight: bold;
-  font-size: 15px;
-  cursor: pointer;
-}
-button:disabled { opacity: .45; cursor: not-allowed; }
-.primary { background: var(--pink); color: #261426; }
-.secondary { background: #39304e; color: white; border: 1px solid #5c4b76; }
-.actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
-.full { width: 100%; margin-top: 12px; }
-.hidden { display: none !important; }
-.room-code {
-  text-align: center;
-  font-size: 30px;
-  letter-spacing: 5px;
-  font-weight: bold;
-  color: var(--pink);
-  margin: 10px 0;
-  overflow-wrap: anywhere;
-}
-.hint { color: var(--muted); font-size: 13px; line-height: 1.5; }
-.status { margin: 12px 0; color: var(--muted); white-space: pre-wrap; overflow-wrap: anywhere; }
-.player {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 13px 0;
-  border-bottom: 1px solid #40364e;
-}
-.player:last-child { border-bottom: 0; }
-.avatar {
-  width: 40px;
-  height: 40px;
-  flex-shrink: 0;
-  display: grid;
-  place-items: center;
-  border-radius: 12px;
-  background: #3a2a4e;
-  color: var(--pink);
-  font-weight: bold;
-}
-.player-info { flex: 1; min-width: 0; }
-.player-name { font-weight: bold; overflow-wrap: anywhere; }
-.player-role { color: var(--muted); font-size: 12px; margin-top: 4px; }
-.ready-tag { font-size: 13px; color: var(--green); text-align: right; }
-.waiting-tag { font-size: 13px; color: #e4c77c; text-align: right; }
-#output { overflow-wrap: anywhere; }
-@media (max-width: 440px) {
-  .panel { padding: 17px; }
-  .actions { grid-template-columns: 1fr; }
-  .room-code { font-size: 25px; letter-spacing: 3px; }
-}
+*{box-sizing:border-box}
+body{margin:0;background:#15121f;color:#fff;font:15px Arial,sans-serif;padding:18px}
+main{max-width:1050px;margin:auto}
+h1{color:#ff79bd;text-align:center}
+.panel{background:#211c30;border:1px solid #453854;border-radius:16px;padding:16px;margin:12px 0}
+input,button{padding:12px;border-radius:9px;font-size:15px}
+input{width:100%;margin:6px 0 12px;background:#171321;color:white;border:1px solid #554967}
+button{border:0;cursor:pointer;font-weight:bold;background:#ff79bd;color:#241426;margin:4px}
+button:disabled{opacity:.4}
+.secondary{background:#39304e;color:white}
+.hidden{display:none!important}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row>*{flex:1}
+#board{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
+.space{background:#302940;border:1px solid #5a4c6d;border-radius:8px;padding:7px 3px;text-align:center;min-height:88px;overflow-wrap:anywhere;font-size:11px}
+.space strong{display:block;font-size:11px;margin-bottom:5px}
+.space .price{color:#ffb8dd}
+.space .tokens{margin-top:5px;color:#bda8ff;font-weight:bold}
+.space.current{outline:2px solid #ff79bd}
+.space.owned{background:#45365a}
+#playersList{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.player{background:#302940;border-radius:9px;padding:10px}
+.muted{color:#bcb5ce;font-size:13px}
+#message{white-space:pre-wrap;overflow-wrap:anywhere}
 </style>
 </head>
 <body>
 <main>
-  <header>
-    <div class="logo">🎲</div>
-    <h1>Friend Monopoly</h1>
-    <div class="subtitle">Roll the dice. Buy the streets. Beat your friends.</div>
-  </header>
+<h1>🎲 Friend Monopoly</h1>
 
-  <section class="panel" id="entryPanel">
-    <h2>Join the fun</h2>
-    <label for="name">Your player name</label>
-    <input id="name" maxlength="20" placeholder="Enter your name" autocomplete="nickname">
+<section class="panel" id="entry">
+<h2>Join a game</h2>
+<label>Name</label><input id="name" maxlength="20" placeholder="Your name">
+<label>Room code</label><input id="code" maxlength="8" placeholder="Example: PINK7">
+<div class="row">
+<button id="create">Create room</button>
+<button class="secondary" id="join">Join room</button>
+</div>
+<p class="muted">Share the room code with your friends.</p>
+</section>
 
-    <label for="code">Room code</label>
-    <input id="code" maxlength="8" placeholder="4–8 letters or numbers" autocomplete="off">
+<section class="panel hidden" id="lobby">
+<h2>Room <span id="roomCode"></span></h2>
+<div id="playersList"></div>
+<p id="lobbyStatus" class="muted">Waiting for players...</p>
+<div class="row">
+<button id="ready">I'm ready</button>
+<button id="start" class="hidden">Start game</button>
+<button id="leave" class="secondary">Leave</button>
+</div>
+</section>
 
-    <div class="actions">
-      <button class="primary" id="create">Create room</button>
-      <button class="secondary" id="join">Join room</button>
-    </div>
-    <p class="hint">Create a room and share its code with your friends, or enter a friend's code to join.</p>
-  </section>
+<section class="panel hidden" id="game">
+<h2>Monopoly board</h2>
+<p id="turnInfo"></p>
+<div id="board"></div>
+<div class="panel">
+<p id="dice">Dice: not rolled yet</p>
+<p id="currentSpace"></p>
+<div class="row">
+<button id="roll">Roll dice</button>
+<button id="buy">Buy property</button>
+<button id="endTurn" class="secondary">End turn</button>
+</div>
+</div>
+<h3>Players</h3>
+<div id="gamePlayers"></div>
+<h3>Owned properties</h3>
+<div id="owned"></div>
+</section>
 
-  <section class="panel hidden" id="lobbyPanel">
-    <h2>Game lobby</h2>
-    <div class="hint">ROOM CODE</div>
-    <div class="room-code" id="roomCode">------</div>
-    <button class="secondary full" id="copyCode">Copy room code</button>
-
-    <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;margin-top:24px">
-      <h2 style="margin:0">Players</h2>
-      <span class="hint" id="playerCount">0 players</span>
-    </div>
-
-    <div id="playersList"></div>
-    <p class="status" id="lobbyStatus">Waiting for players...</p>
-
-    <button class="primary full" id="readyButton">I'm ready</button>
-    <button class="primary full hidden" id="startButton">Start game</button>
-    <button class="secondary full" id="leaveButton">Leave lobby</button>
-  </section>
-
-  <section class="panel hidden" id="gamePanel">
-    <h2>🎉 Game starting!</h2>
-    <p>The lobby is working. The Monopoly board and turn system are the next step.</p>
-    <p class="hint">This is a lobby status for now; the actual board has not been built yet.</p>
-  </section>
-
-  <div class="status" id="output" role="status" aria-live="polite">Ready to connect.</div>
+<div id="message" class="panel muted">Connecting...</div>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 "use strict";
 
-// Keep your real Supabase project URL and PUBLIC publishable key here.
-// Never put your service_role or secret key in this page.
+// Use your existing Supabase project details.
 const SUPABASE_URL = "https://yghlbyfkkwpzmvbkwbob.supabase.co";
 const SUPABASE_KEY = "sb_publishable_42gwT-h8zvxfbQeXv_HxRQ_BKxAOKY3";
 
 const $ = id => document.getElementById(id);
-const output = $("output");
+const names = [
+"GO","Mediterranean Avenue","Community Chest","Baltic Avenue",
+"Income Tax","Reading Railroad","Oriental Avenue","Chance",
+"Vermont Avenue","Connecticut Avenue","Jail / Visiting",
+"St. Charles Place","Electric Company","States Avenue",
+"Virginia Avenue","Pennsylvania Railroad","St. James Place",
+"Community Chest","Tennessee Avenue","New York Avenue",
+"Free Parking","Kentucky Avenue","Chance","Indiana Avenue",
+"Illinois Avenue","B. & O. Railroad","Atlantic Avenue",
+"Ventnor Avenue","Water Works","Marvin Gardens","Go To Jail",
+"Pacific Avenue","North Carolina Avenue","Community Chest",
+"Pennsylvania Avenue","Short Line","Chance","Park Place",
+"Luxury Tax","Boardwalk"
+];
+const prices = [0,60,0,60,0,200,100,0,100,120,0,140,150,140,160,200,180,0,180,200,0,220,0,220,240,200,260,260,150,280,0,300,300,0,320,200,0,350,0,400];
+let db, userId, roomId, roomCode, hostId, ready = false, refreshTimer;
+let myPosition = 0, myMoney = 1500, hasRolled = false;
+let lastDice = null;
 
-let db = null;
-let currentRoomId = null;
-let currentRoomCode = null;
-let currentUserId = null;
-let isHost = false;
-let isReady = false;
-let refreshTimer = null;
-let actionInProgress = false;
+function say(s){ $("message").textContent = s; }
+function callRpc(fn,args){ return db.rpc(fn,args); }
 
-function show(message) {
-  output.textContent = message;
+async function guest(){
+  const {data,error}=await db.auth.getSession();
+  if(error)throw error;
+  if(data.session){userId=data.session.user.id;return;}
+  const r=await db.auth.signInAnonymously();
+  if(r.error)throw r.error;
+  userId=r.data.user.id;
 }
 
-function setBusy(busy) {
-  actionInProgress = busy;
-  $("create").disabled = busy;
-  $("join").disabled = busy;
+async function enterRoom(action){
+  try{
+    const name=$("name").value.trim();
+    const code=$("code").value.trim().toUpperCase();
+    if(!name)throw Error("Enter your name.");
+    if(!/^[A-Z0-9]{4,8}$/.test(code))throw Error("Room code must be 4–8 letters or numbers.");
+    await guest();
+    const fn=action==="create"?"create_game_room":"join_game_room";
+    const {data,error}=await callRpc(fn,{p_room_code:code,p_player_name:name});
+    if(error)throw error;
+    roomId=data;
+    await loadRoom();
+    $("entry").classList.add("hidden");
+    $("lobby").classList.remove("hidden");
+    if(refreshTimer)clearInterval(refreshTimer);
+    refreshTimer=setInterval(()=>loadRoom().catch(e=>say(e.message)),2500);
+    say("Connected to "+roomCode+".");
+  }catch(e){say("Couldn't "+action+" room: "+e.message);}
 }
 
-async function ensureGuest() {
-  const { data, error } = await db.auth.getSession();
-  if (error) throw error;
+async function loadRoom(){
+  if(!roomId)return;
+  const rr=await db.from("game_rooms")
+    .select("id,room_code,status,creator_id,current_turn_user_id,last_dice_1,last_dice_2")
+    .eq("id",roomId).single();
+  if(rr.error)throw rr.error;
+  const room=rr.data;
+  roomCode=room.room_code;hostId=room.creator_id;
+  $("roomCode").textContent=roomCode;
 
-  if (data.session) {
-    currentUserId = data.session.user.id;
-    return;
-  }
+  const pr=await db.from("game_players")
+    .select("user_id,player_name,money,board_position,is_ready,has_rolled,turn_order")
+    .eq("room_id",roomId).order("joined_at");
+  if(pr.error)throw pr.error;
+  const players=pr.data;
+  const me=players.find(p=>p.user_id===userId);
+  if(me){myPosition=me.board_position;myMoney=me.money;ready=me.is_ready;hasRolled=me.has_rolled;}
 
-  const { data: signedIn, error: signInError } =
-    await db.auth.signInAnonymously();
+  $("playersList").innerHTML="";
+  players.forEach(p=>{
+    const d=document.createElement("div");d.className="player";
+    d.textContent=p.player_name+(p.user_id===hostId?" (Host)":"")+
+      (p.is_ready?" ✓ Ready":" — Not ready");
+    $("playersList").append(d);
+  });
+  $("ready").textContent=ready?"Ready ✓":"I'm ready";
+  $("start").classList.toggle("hidden",hostId!==userId||room.status!=="waiting");
+  $("lobbyStatus").textContent=hostId===userId
+    ?"You are the host. Everyone must be ready."
+    :"Waiting for the host to start.";
 
-  if (signInError) throw signInError;
-  currentUserId = signedIn.user.id;
-}
-
-function playerElement(player, hostId) {
-  const row = document.createElement("div");
-  row.className = "player";
-
-  const avatar = document.createElement("div");
-  avatar.className = "avatar";
-  avatar.textContent = (player.player_name || "?").slice(0, 1).toUpperCase();
-
-  const info = document.createElement("div");
-  info.className = "player-info";
-
-  const name = document.createElement("div");
-  name.className = "player-name";
-  name.textContent = player.player_name;
-
-  const role = document.createElement("div");
-  role.className = "player-role";
-  const host = player.user_id === hostId;
-  role.textContent = host ? "HOST" : "PLAYER";
-
-  info.append(name, role);
-
-  const tag = document.createElement("div");
-  tag.className = player.is_ready ? "ready-tag" : "waiting-tag";
-  tag.textContent = player.is_ready ? "✓ Ready" : "Waiting";
-
-  row.append(avatar, info, tag);
-  return row;
-}
-
-async function refreshLobby() {
-  if (!currentRoomId || !db) return;
-
-  try {
-    const { data: room, error: roomError } = await db
-      .from("game_rooms")
-      .select("id, room_code, status, creator_id")
-      .eq("id", currentRoomId)
-      .single();
-
-    if (roomError) throw roomError;
-
-    const { data: players, error: playersError } = await db
-      .from("game_players")
-      .select("user_id, player_name, is_ready, joined_at")
-      .eq("room_id", currentRoomId)
-      .order("joined_at", { ascending: true });
-
-    if (playersError) throw playersError;
-
-    isHost = room.creator_id === currentUserId;
-    const me = players.find(p => p.user_id === currentUserId);
-    isReady = !!me?.is_ready;
-
-    $("roomCode").textContent = room.room_code;
-    $("playerCount").textContent =
-      players.length + (players.length === 1 ? " player" : " players");
-
-    $("playersList").replaceChildren(
-      ...players.map(p => playerElement(p, room.creator_id))
-    );
-
-    $("readyButton").textContent = isReady ? "I'm ready ✓" : "I'm ready";
-    $("readyButton").classList.toggle("hidden", room.status !== "waiting");
-    $("startButton").classList.toggle("hidden", !isHost || room.status !== "waiting");
-    $("startButton").disabled =
-      players.length < 2 || !players.every(p => p.is_ready);
-
-    if (room.status === "playing") {
-      $("lobbyPanel").classList.add("hidden");
-      $("gamePanel").classList.remove("hidden");
-      $("lobbyStatus").textContent = "The game has started!";
-    } else if (room.status === "finished") {
-      $("lobbyStatus").textContent = "This game has finished.";
-    } else {
-      $("lobbyStatus").textContent = isHost
-        ? "You are the host. Wait for everyone to join and get ready."
-        : "Waiting for the host to start the game.";
-    }
-  } catch (error) {
-    console.error("Lobby refresh failed:", error);
-    show("Couldn't refresh the lobby: " + error.message);
+  if(room.status==="playing"){
+    $("lobby").classList.add("hidden");
+    $("game").classList.remove("hidden");
+    await drawBoard(players);
+    await drawProperties();
+    const current=players.find(p=>p.user_id===room.current_turn_user_id);
+    $("turnInfo").textContent=current
+      ? "Current turn: "+current.player_name+(current.user_id===userId?" (your turn)":"")
+      :"Waiting for turn information.";
+    $("roll").disabled=room.current_turn_user_id!==userId||hasRolled;
+    $("buy").disabled=room.current_turn_user_id!==userId||!hasRolled;
+    $("endTurn").disabled=room.current_turn_user_id!==userId||!hasRolled;
+    $("dice").textContent=room.last_dice_1
+      ?"Last roll: "+room.last_dice_1+" + "+room.last_dice_2
+      :"Roll the dice to move.";
   }
 }
 
-async function runAction(action) {
-  if (actionInProgress) return;
-
-  setBusy(true);
-  try {
-    show("Connecting...");
-    const name = $("name").value.trim();
-    const code = $("code").value.trim().toUpperCase();
-
-    if (!name) throw new Error("Enter your player name.");
-    if (!/^[A-Z0-9]{4,8}$/.test(code)) {
-      throw new Error("Room codes must be 4–8 letters or numbers.");
-    }
-
-    if (!db) throw new Error("Supabase hasn't loaded. Refresh the page.");
-
-    await ensureGuest();
-
-    const functionName = action === "create"
-      ? "create_game_room"
-      : "join_game_room";
-
-    const { data: roomId, error } = await db.rpc(functionName, {
-      p_room_code: code,
-      p_player_name: name
-    });
-
-    if (error) throw error;
-
-    currentRoomId = roomId;
-
-    const { data: room, error: roomError } = await db
-      .from("game_rooms")
-      .select("room_code")
-      .eq("id", roomId)
-      .single();
-
-    if (roomError) throw roomError;
-
-    currentRoomCode = room.room_code;
-
-    $("entryPanel").classList.add("hidden");
-    $("lobbyPanel").classList.remove("hidden");
-    $("gamePanel").classList.add("hidden");
-
-    if (refreshTimer) clearInterval(refreshTimer);
-    await refreshLobby();
-    refreshTimer = setInterval(refreshLobby, 2500);
-
-    show("Connected to room " + currentRoomCode + ".");
-  } catch (error) {
-    show("Couldn't " + action + " room:\n" + error.message);
-  } finally {
-    setBusy(false);
+async function drawBoard(players){
+  const ownR=await db.from("game_properties")
+    .select("space_index,owner_user_id").eq("room_id",roomId);
+  if(ownR.error)throw ownR.error;
+  const owned=new Map(ownR.data.map(p=>[p.space_index,p.owner_user_id]));
+  const board=$("board");board.innerHTML="";
+  for(let i=0;i<40;i++){
+    const d=document.createElement("div");
+    d.className="space"+(owned.has(i)?" owned":"")+
+      (players.some(p=>p.user_id===userId&&p.board_position===i)?" current":"");
+    const title=document.createElement("strong");title.textContent=i+" · "+names[i];
+    const price=document.createElement("div");price.className="price";
+    price.textContent=prices[i]?"$"+prices[i]:"";
+    const tokens=document.createElement("div");tokens.className="tokens";
+    tokens.textContent=players.filter(p=>p.board_position===i)
+      .map(p=>p.player_name.slice(0,3)).join(" · ");
+    d.append(title,price,tokens);board.append(d);
   }
+  const space=names[myPosition];
+  $("currentSpace").textContent="Your space: "+space+" | Your money: $"+myMoney;
 }
 
-
-async function toggleReady() {
-  if (!currentRoomId || actionInProgress) return;
-
-  $("readyButton").disabled = true;
-
-  try {
-    const { error } = await db.rpc("set_player_ready", {
-      p_room_id: currentRoomId,
-      p_is_ready: !isReady
-    });
-
-    if (error) throw error;
-
-    await refreshLobby();
-  } catch (error) {
-    show("Couldn't update readiness: " + error.message);
-  } finally {
-    $("readyButton").disabled = false;
-  }
+async function drawProperties(){
+  const r=await db.from("game_properties")
+    .select("space_index,owner_user_id").eq("room_id",roomId);
+  if(r.error)throw r.error;
+  const p=await db.from("game_players")
+    .select("user_id,player_name").eq("room_id",roomId);
+  if(p.error)throw p.error;
+  $("owned").textContent=r.data.length?r.data.map(x=>{
+    const owner=p.data.find(y=>y.user_id===x.owner_user_id);
+    return names[x.space_index]+" — "+(owner?owner.player_name:"Unknown");
+  }).join(" | "):"No properties owned yet.";
 }
 
-
-
-async function startGame() {
-  if (!isHost || !currentRoomId) return;
-
-  $("startButton").disabled = true;
-
-  try {
-    const { error } = await db.rpc("start_game", {
-      p_room_id: currentRoomId
-    });
-
-    if (error) throw error;
-
-    await refreshLobby();
-  } catch (error) {
-    show("Couldn't start game: " + error.message);
-    $("startButton").disabled = false;
-  }
+async function setReady(){
+  try{
+    const {error}=await callRpc("set_player_ready",{p_room_id:roomId,p_is_ready:!ready});
+    if(error)throw error;
+    await loadRoom();
+  }catch(e){say("Ready error: "+e.message);}
 }
 
+async function startGame(){
+  try{
+    const {error}=await callRpc("start_game",{p_room_id:roomId});
+    if(error)throw error;
+    await loadRoom();
+  }catch(e){say("Start error: "+e.message);}
+}
 
-$("create").addEventListener("click", () => runAction("create"));
-$("join").addEventListener("click", () => runAction("join"));
-$("readyButton").addEventListener("click", toggleReady);
-$("startButton").addEventListener("click", startGame);
+async function roll(){
+  try{
+    const {data,error}=await callRpc("roll_turn",{p_room_id:roomId});
+    if(error)throw error;
+    lastDice=data[0];
+    say("You rolled "+lastDice.dice_1+" and "+lastDice.dice_2+".");
+    await loadRoom();
+  }catch(e){say("Roll error: "+e.message);}
+}
 
-$("copyCode").addEventListener("click", async () => {
-  try {
-    await navigator.clipboard.writeText(currentRoomCode);
-    show("Room code copied!");
-  } catch {
-    show("Your room code is " + currentRoomCode + ". Copy it manually.");
+async function buy(){
+  try{
+    const {error}=await callRpc("buy_property",{p_room_id:roomId});
+    if(error)throw error;
+    say("Property purchased!");
+    await loadRoom();
+  }catch(e){say("Purchase error: "+e.message);}
+}
+
+async function endTurn(){
+  try{
+    const {error}=await callRpc("end_turn",{p_room_id:roomId});
+    if(error)throw error;
+    say("Turn ended.");
+    await loadRoom();
+  }catch(e){say("End-turn error: "+e.message);}
+}
+
+$("create").onclick=()=>enterRoom("create");
+$("join").onclick=()=>enterRoom("join");
+$("ready").onclick=setReady;
+$("start").onclick=startGame;
+$("roll").onclick=roll;
+$("buy").onclick=buy;
+$("endTurn").onclick=endTurn;
+$("leave").onclick=()=>{
+  if(refreshTimer)clearInterval(refreshTimer);
+  refreshTimer=null;roomId=null;
+  $("lobby").classList.add("hidden");
+  $("game").classList.add("hidden");
+  $("entry").classList.remove("hidden");
+  say("Left the lobby screen. Your player record remains in the room.");
+};
+
+(async()=>{
+  if(!window.supabase){say("Supabase failed to load.");return;}
+  if(SUPABASE_URL.includes("PASTE_YOUR")||SUPABASE_KEY.includes("PASTE_YOUR")){
+    say("Add your real Supabase URL and public publishable key first.");return;
   }
-});
-
-$("leaveButton").addEventListener("click", () => {
-  if (refreshTimer) clearInterval(refreshTimer);
-  refreshTimer = null;
-  currentRoomId = null;
-  currentRoomCode = null;
-  isReady = false;
-  isHost = false;
-  $("lobbyPanel").classList.add("hidden");
-  $("gamePanel").classList.add("hidden");
-  $("entryPanel").classList.remove("hidden");
-  $("playersList").replaceChildren();
-  show("You left the lobby screen. Your player record remains in the room.");
-});
-
-(async function init() {
-  if (!window.supabase) {
-    show("Supabase failed to load. Check your internet connection and refresh.");
-    return;
-  }
-
-  if (
-    SUPABASE_URL.includes("PASTE_YOUR") ||
-    SUPABASE_KEY.includes("PASTE_YOUR")
-  ) {
-    show("Add your actual Supabase project URL and public publishable key in the code.");
-    return;
-  }
-
-  db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-  show("Ready! Create a room or join a friend's room.");
+  db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+  say("Ready to play!");
 })();
 </script>
 </body>
