@@ -346,18 +346,20 @@ async function runAction(action) {
   }
 }
 
+
 async function toggleReady() {
   if (!currentRoomId || actionInProgress) return;
 
   $("readyButton").disabled = true;
+
   try {
-    const { error } = await db
-      .from("game_players")
-      .update({ is_ready: !isReady })
-      .eq("room_id", currentRoomId)
-      .eq("user_id", currentUserId);
+    const { error } = await db.rpc("set_player_ready", {
+      p_room_id: currentRoomId,
+      p_is_ready: !isReady
+    });
 
     if (error) throw error;
+
     await refreshLobby();
   } catch (error) {
     show("Couldn't update readiness: " + error.message);
@@ -365,6 +367,7 @@ async function toggleReady() {
     $("readyButton").disabled = false;
   }
 }
+
 
 async function startGame() {
   if (!isHost || !currentRoomId) return;
