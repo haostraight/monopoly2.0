@@ -2,258 +2,445 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Friend Monopoly - Multiplayer Test</title>
-  <style>
-    * { box-sizing: border-box; }
-
-    body {
-      background: #171522;
-      color: white;
-      font: 16px Arial, sans-serif;
-      max-width: 600px;
-      margin: 35px auto;
-      padding: 20px;
-    }
-
-    h1 { color: #ff79bd; }
-
-    input, button {
-      width: 100%;
-      padding: 12px;
-      margin: 7px 0;
-      border-radius: 8px;
-      font-size: 16px;
-    }
-
-    input {
-      border: 1px solid #888;
-      background: #282536;
-      color: white;
-    }
-
-    button {
-      background: #ff79bd;
-      color: #171522;
-      border: 0;
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    button:disabled {
-      opacity: 0.6;
-      cursor: wait;
-    }
-
-    pre {
-      white-space: pre-wrap;
-      overflow-wrap: anywhere;
-      background: #282536;
-      padding: 14px;
-      border-radius: 8px;
-      min-height: 100px;
-    }
-
-    .hint {
-      color: #c9c4d8;
-      font-size: 13px;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Friend Monopoly - Lobby</title>
+<style>
+:root {
+  color-scheme: dark;
+  --bg: #15121f;
+  --panel: #211c30;
+  --pink: #ff79bd;
+  --purple: #a78bfa;
+  --muted: #bcb5ce;
+  --green: #78e6ad;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  padding: 28px 16px;
+  background:
+    radial-gradient(circle at top left, #38204c 0, transparent 38%),
+    var(--bg);
+  color: white;
+  font: 16px Arial, sans-serif;
+}
+main { max-width: 680px; margin: 0 auto; }
+header { text-align: center; margin: 12px 0 28px; }
+.logo { font-size: 44px; }
+h1 { color: var(--pink); margin: 8px 0; }
+.subtitle { color: var(--muted); }
+.panel {
+  background: var(--panel);
+  border: 1px solid #453854;
+  border-radius: 18px;
+  padding: 22px;
+  margin-bottom: 16px;
+}
+h2 { margin-top: 0; font-size: 20px; }
+label { display: block; margin: 14px 0 6px; color: var(--muted); }
+input {
+  width: 100%;
+  padding: 13px;
+  background: #171321;
+  border: 1px solid #554967;
+  border-radius: 10px;
+  color: white;
+  font-size: 16px;
+}
+button {
+  padding: 13px 16px;
+  border: 0;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 15px;
+  cursor: pointer;
+}
+button:disabled { opacity: .45; cursor: not-allowed; }
+.primary { background: var(--pink); color: #261426; }
+.secondary { background: #39304e; color: white; border: 1px solid #5c4b76; }
+.actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+.full { width: 100%; margin-top: 12px; }
+.hidden { display: none !important; }
+.room-code {
+  text-align: center;
+  font-size: 30px;
+  letter-spacing: 5px;
+  font-weight: bold;
+  color: var(--pink);
+  margin: 10px 0;
+  overflow-wrap: anywhere;
+}
+.hint { color: var(--muted); font-size: 13px; line-height: 1.5; }
+.status { margin: 12px 0; color: var(--muted); white-space: pre-wrap; overflow-wrap: anywhere; }
+.player {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 0;
+  border-bottom: 1px solid #40364e;
+}
+.player:last-child { border-bottom: 0; }
+.avatar {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: #3a2a4e;
+  color: var(--pink);
+  font-weight: bold;
+}
+.player-info { flex: 1; min-width: 0; }
+.player-name { font-weight: bold; overflow-wrap: anywhere; }
+.player-role { color: var(--muted); font-size: 12px; margin-top: 4px; }
+.ready-tag { font-size: 13px; color: var(--green); text-align: right; }
+.waiting-tag { font-size: 13px; color: #e4c77c; text-align: right; }
+#output { overflow-wrap: anywhere; }
+@media (max-width: 440px) {
+  .panel { padding: 17px; }
+  .actions { grid-template-columns: 1fr; }
+  .room-code { font-size: 25px; letter-spacing: 3px; }
+}
+</style>
 </head>
 <body>
-  <h1>🎲 Friend Monopoly</h1>
-  <p>Multiplayer connection test</p>
+<main>
+  <header>
+    <div class="logo">🎲</div>
+    <h1>Friend Monopoly</h1>
+    <div class="subtitle">Roll the dice. Buy the streets. Beat your friends.</div>
+  </header>
 
-  <label for="name">Your player name</label>
-  <input id="name" maxlength="20" placeholder="e.g. Jisoo">
+  <section class="panel" id="entryPanel">
+    <h2>Join the fun</h2>
+    <label for="name">Your player name</label>
+    <input id="name" maxlength="20" placeholder="Enter your name" autocomplete="nickname">
 
-  <label for="code">Room code</label>
-  <input id="code" maxlength="8" placeholder="e.g. PINK7">
+    <label for="code">Room code</label>
+    <input id="code" maxlength="8" placeholder="4–8 letters or numbers" autocomplete="off">
 
-  <button id="create">Create room</button>
-  <button id="join">Join room</button>
+    <div class="actions">
+      <button class="primary" id="create">Create room</button>
+      <button class="secondary" id="join">Join room</button>
+    </div>
+    <p class="hint">Create a room and share its code with your friends, or enter a friend's code to join.</p>
+  </section>
 
-  <p class="hint">
-    Keep this page open to see player updates automatically.
-  </p>
+  <section class="panel hidden" id="lobbyPanel">
+    <h2>Game lobby</h2>
+    <div class="hint">ROOM CODE</div>
+    <div class="room-code" id="roomCode">------</div>
+    <button class="secondary full" id="copyCode">Copy room code</button>
 
-  <pre id="output">Enter your name and room code to begin.</pre>
+    <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;margin-top:24px">
+      <h2 style="margin:0">Players</h2>
+      <span class="hint" id="playerCount">0 players</span>
+    </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    (() => {
-      "use strict";
+    <div id="playersList"></div>
+    <p class="status" id="lobbyStatus">Waiting for players...</p>
 
-      // Keep your actual Supabase project details here.
-      const SUPABASE_URL = "https://yghlbyfkkwpzmvbkwbob.supabase.co";
-      const SUPABASE_KEY = "sb_publishable_42gwT-h8zvxfbQeXv_HxRQ_BKxAOKY3";
+    <button class="primary full" id="readyButton">I'm ready</button>
+    <button class="primary full hidden" id="startButton">Start game</button>
+    <button class="secondary full" id="leaveButton">Leave lobby</button>
+  </section>
 
-      const output = document.getElementById("output");
-      const createButton = document.getElementById("create");
-      const joinButton = document.getElementById("join");
+  <section class="panel hidden" id="gamePanel">
+    <h2>🎉 Game starting!</h2>
+    <p>The lobby is working. The Monopoly board and turn system are the next step.</p>
+    <p class="hint">This is a lobby status for now; the actual board has not been built yet.</p>
+  </section>
 
-      let db;
-      let currentRoomId = null;
-      let currentRoomCode = null;
-      let refreshTimer = null;
-      let actionInProgress = false;
+  <div class="status" id="output" role="status" aria-live="polite">Ready to connect.</div>
+</main>
 
-      function show(message) {
-        output.textContent = message;
-      }
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+"use strict";
 
-      function showError(error) {
-        console.error(error);
-        show("TEST FAILED\n\n" + (error.message || String(error)));
-      }
+// Keep your real Supabase project URL and PUBLIC publishable key here.
+// Never put your service_role or secret key in this page.
+const SUPABASE_URL = "https://yghlbyfkkwpzmvbkwbob.supabase.co";
+const SUPABASE_KEY = "sb_publishable_42gwT-h8zvxfbQeXv_HxRQ_BKxAOKY3";
 
-      async function ensureGuest() {
-        const { data, error } = await db.auth.getSession();
-        if (error) throw error;
+const $ = id => document.getElementById(id);
+const output = $("output");
 
-        if (!data.session) {
-          const result = await db.auth.signInAnonymously();
-          if (result.error) throw result.error;
-        }
-      }
+let db = null;
+let currentRoomId = null;
+let currentRoomCode = null;
+let currentUserId = null;
+let isHost = false;
+let isReady = false;
+let refreshTimer = null;
+let actionInProgress = false;
 
-      
-async function refreshPlayers() {
-  if (!currentRoomId) return;
+function show(message) {
+  output.textContent = message;
+}
+
+function setBusy(busy) {
+  actionInProgress = busy;
+  $("create").disabled = busy;
+  $("join").disabled = busy;
+}
+
+async function ensureGuest() {
+  const { data, error } = await db.auth.getSession();
+  if (error) throw error;
+
+  if (data.session) {
+    currentUserId = data.session.user.id;
+    return;
+  }
+
+  const { data: signedIn, error: signInError } =
+    await db.auth.signInAnonymously();
+
+  if (signInError) throw signInError;
+  currentUserId = signedIn.user.id;
+}
+
+function playerElement(player, hostId) {
+  const row = document.createElement("div");
+  row.className = "player";
+
+  const avatar = document.createElement("div");
+  avatar.className = "avatar";
+  avatar.textContent = (player.player_name || "?").slice(0, 1).toUpperCase();
+
+  const info = document.createElement("div");
+  info.className = "player-info";
+
+  const name = document.createElement("div");
+  name.className = "player-name";
+  name.textContent = player.player_name;
+
+  const role = document.createElement("div");
+  role.className = "player-role";
+  const host = player.user_id === hostId;
+  role.textContent = host ? "HOST" : "PLAYER";
+
+  info.append(name, role);
+
+  const tag = document.createElement("div");
+  tag.className = player.is_ready ? "ready-tag" : "waiting-tag";
+  tag.textContent = player.is_ready ? "✓ Ready" : "Waiting";
+
+  row.append(avatar, info, tag);
+  return row;
+}
+
+async function refreshLobby() {
+  if (!currentRoomId || !db) return;
 
   try {
-    const { data: players, error } = await db
+    const { data: room, error: roomError } = await db
+      .from("game_rooms")
+      .select("id, room_code, status, creator_id")
+      .eq("id", currentRoomId)
+      .single();
+
+    if (roomError) throw roomError;
+
+    const { data: players, error: playersError } = await db
       .from("game_players")
-      .select("player_name, money, board_position")
+      .select("user_id, player_name, is_ready, joined_at")
       .eq("room_id", currentRoomId)
       .order("joined_at", { ascending: true });
 
-    if (error) throw error;
+    if (playersError) throw playersError;
 
-    const lines = (players || []).map((p, index) =>
-      (index + 1) + ". " + p.player_name +
-      " | $" + p.money +
-      " | Position " + p.board_position
+    isHost = room.creator_id === currentUserId;
+    const me = players.find(p => p.user_id === currentUserId);
+    isReady = !!me?.is_ready;
+
+    $("roomCode").textContent = room.room_code;
+    $("playerCount").textContent =
+      players.length + (players.length === 1 ? " player" : " players");
+
+    $("playersList").replaceChildren(
+      ...players.map(p => playerElement(p, room.creator_id))
     );
 
-    show(
-      "Room: " + currentRoomCode +
-      "\nPlayers: " + lines.length +
-      "\n\n" +
-      (lines.join("\n") || "No players found.") +
-      "\n\nUpdating automatically every 3 seconds."
-    );
+    $("readyButton").textContent = isReady ? "I'm ready ✓" : "I'm ready";
+    $("readyButton").classList.toggle("hidden", room.status !== "waiting");
+    $("startButton").classList.toggle("hidden", !isHost || room.status !== "waiting");
+    $("startButton").disabled =
+      players.length < 2 || !players.every(p => p.is_ready);
+
+    if (room.status === "playing") {
+      $("lobbyPanel").classList.add("hidden");
+      $("gamePanel").classList.remove("hidden");
+      $("lobbyStatus").textContent = "The game has started!";
+    } else if (room.status === "finished") {
+      $("lobbyStatus").textContent = "This game has finished.";
+    } else {
+      $("lobbyStatus").textContent = isHost
+        ? "You are the host. Wait for everyone to join and get ready."
+        : "Waiting for the host to start the game.";
+    }
   } catch (error) {
-    console.error("Player refresh failed:", error);
-    show(
-      "Could not refresh players.\n\n" +
-      (error.message || String(error))
-    );
+    console.error("Lobby refresh failed:", error);
+    show("Couldn't refresh the lobby: " + error.message);
   }
 }
 
+async function runAction(action) {
+  if (actionInProgress) return;
 
-      async function runAction(action) {
-        if (actionInProgress) return;
+  setBusy(true);
+  try {
+    show("Connecting...");
+    const name = $("name").value.trim();
+    const code = $("code").value.trim().toUpperCase();
 
-        actionInProgress = true;
-        createButton.disabled = true;
-        joinButton.disabled = true;
+    if (!name) throw new Error("Enter your player name.");
+    if (!/^[A-Z0-9]{4,8}$/.test(code)) {
+      throw new Error("Room codes must be 4–8 letters or numbers.");
+    }
 
-        try {
-          show("Connecting to Supabase...");
+    if (!db) throw new Error("Supabase hasn't loaded. Refresh the page.");
 
-          const name = document.getElementById("name").value.trim();
-          const code = document.getElementById("code")
-            .value.trim().toUpperCase();
+    await ensureGuest();
 
-          if (!name || name.length > 20) {
-            throw new Error("Enter a name between 1 and 20 characters.");
-          }
+    const functionName = action === "create"
+      ? "create_game_room"
+      : "join_game_room";
 
-          if (!/^[A-Z0-9]{4,8}$/.test(code)) {
-            throw new Error(
-              "Enter a room code with 4-8 letters or numbers."
-            );
-          }
+    const { data: roomId, error } = await db.rpc(functionName, {
+      p_room_code: code,
+      p_player_name: name
+    });
 
-          await ensureGuest();
+    if (error) throw error;
 
-          const functionName = action === "create"
-            ? "create_game_room"
-            : "join_game_room";
+    currentRoomId = roomId;
 
-          const { data: roomId, error } = await db.rpc(functionName, {
-            p_room_code: code,
-            p_player_name: name
-          });
+    const { data: room, error: roomError } = await db
+      .from("game_rooms")
+      .select("room_code")
+      .eq("id", roomId)
+      .single();
 
-          if (error) throw error;
+    if (roomError) throw roomError;
 
-          if (!roomId) {
-            throw new Error("The server did not return a room ID.");
-          }
+    currentRoomCode = room.room_code;
 
-          const { data: room, error: roomError } = await db
-            .from("game_rooms")
-            .select("room_code, status")
-            .eq("id", roomId)
-            .single();
+    $("entryPanel").classList.add("hidden");
+    $("lobbyPanel").classList.remove("hidden");
+    $("gamePanel").classList.add("hidden");
 
-          if (roomError) throw roomError;
+    if (refreshTimer) clearInterval(refreshTimer);
+    await refreshLobby();
+    refreshTimer = setInterval(refreshLobby, 2500);
 
-          currentRoomId = roomId;
-          currentRoomCode = room.room_code;
+    show("Connected to room " + currentRoomCode + ".");
+  } catch (error) {
+    show("Couldn't " + action + " room:\n" + error.message);
+  } finally {
+    setBusy(false);
+  }
+}
 
-          if (refreshTimer) clearInterval(refreshTimer);
+async function toggleReady() {
+  if (!currentRoomId || actionInProgress) return;
 
-          await refreshPlayers();
+  $("readyButton").disabled = true;
+  try {
+    const { error } = await db
+      .from("game_players")
+      .update({ is_ready: !isReady })
+      .eq("room_id", currentRoomId)
+      .eq("user_id", currentUserId);
 
-          refreshTimer = setInterval(async () => {
-            try {
-              await refreshPlayers();
-            } catch (error) {
-              console.error("Player refresh failed:", error);
-            }
-          }, 3000);
+    if (error) throw error;
+    await refreshLobby();
+  } catch (error) {
+    show("Couldn't update readiness: " + error.message);
+  } finally {
+    $("readyButton").disabled = false;
+  }
+}
 
-        } catch (error) {
-          showError(error);
-        } finally {
-          actionInProgress = false;
-          createButton.disabled = false;
-          joinButton.disabled = false;
-        }
-      }
+async function startGame() {
+  if (!isHost || !currentRoomId) return;
 
-      if (!window.supabase) {
-        show(
-          "Could not load the Supabase library. Check your internet connection and reload."
-        );
-        return;
-      }
+  $("startButton").disabled = true;
+  try {
+    const { data: players, error: playersError } = await db
+      .from("game_players")
+      .select("user_id, is_ready")
+      .eq("room_id", currentRoomId);
 
-      if (
-        SUPABASE_URL.includes("PASTE_YOUR") ||
-        SUPABASE_KEY.includes("PASTE_YOUR")
-      ) {
-        show("Add your Supabase project URL and publishable key first.");
-        return;
-      }
+    if (playersError) throw playersError;
+    if (players.length < 2 || !players.every(p => p.is_ready)) {
+      throw new Error("At least two players must join and everyone must be ready.");
+    }
 
-      db = window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_KEY
-      );
+    const { error } = await db
+      .from("game_rooms")
+      .update({ status: "playing" })
+      .eq("id", currentRoomId)
+      .eq("creator_id", currentUserId)
+      .eq("status", "waiting");
 
-      createButton.addEventListener("click", () => runAction("create"));
-      joinButton.addEventListener("click", () => runAction("join"));
+    if (error) throw error;
+    await refreshLobby();
+  } catch (error) {
+    show("Couldn't start game: " + error.message);
+    $("startButton").disabled = false;
+  }
+}
 
-      window.addEventListener("beforeunload", () => {
-        if (refreshTimer) clearInterval(refreshTimer);
-      });
-    })();
-  </script>
+$("create").addEventListener("click", () => runAction("create"));
+$("join").addEventListener("click", () => runAction("join"));
+$("readyButton").addEventListener("click", toggleReady);
+$("startButton").addEventListener("click", startGame);
+
+$("copyCode").addEventListener("click", async () => {
+  try {
+    await navigator.clipboard.writeText(currentRoomCode);
+    show("Room code copied!");
+  } catch {
+    show("Your room code is " + currentRoomCode + ". Copy it manually.");
+  }
+});
+
+$("leaveButton").addEventListener("click", () => {
+  if (refreshTimer) clearInterval(refreshTimer);
+  refreshTimer = null;
+  currentRoomId = null;
+  currentRoomCode = null;
+  isReady = false;
+  isHost = false;
+  $("lobbyPanel").classList.add("hidden");
+  $("gamePanel").classList.add("hidden");
+  $("entryPanel").classList.remove("hidden");
+  $("playersList").replaceChildren();
+  show("You left the lobby screen. Your player record remains in the room.");
+});
+
+(async function init() {
+  if (!window.supabase) {
+    show("Supabase failed to load. Check your internet connection and refresh.");
+    return;
+  }
+
+  if (
+    SUPABASE_URL.includes("PASTE_YOUR") ||
+    SUPABASE_KEY.includes("PASTE_YOUR")
+  ) {
+    show("Add your actual Supabase project URL and public publishable key in the code.");
+    return;
+  }
+
+  db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  show("Ready! Create a room or join a friend's room.");
+})();
+</script>
 </body>
 </html>
