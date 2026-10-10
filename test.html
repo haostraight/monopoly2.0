@@ -5,32 +5,264 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Friend Monopoly</title>
-<style>
-*{box-sizing:border-box}
-body{margin:0;background:#15121f;color:#fff;font:15px Arial,sans-serif;padding:18px}
-main{max-width:1050px;margin:auto}
-h1{color:#ff79bd;text-align:center}
-.panel{background:#211c30;border:1px solid #453854;border-radius:16px;padding:16px;margin:12px 0}
-input,button{padding:12px;border-radius:9px;font-size:15px}
-input{width:100%;margin:6px 0 12px;background:#171321;color:white;border:1px solid #554967}
-button{border:0;cursor:pointer;font-weight:bold;background:#ff79bd;color:#241426;margin:4px}
-button:disabled{opacity:.4}
-.secondary{background:#39304e;color:white}
-.hidden{display:none!important}
-.row{display:flex;gap:8px;flex-wrap:wrap}
-.row>*{flex:1}
-#board{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
-.space{background:#302940;border:1px solid #5a4c6d;border-radius:8px;padding:7px 3px;text-align:center;min-height:88px;overflow-wrap:anywhere;font-size:11px}
-.space strong{display:block;font-size:11px;margin-bottom:5px}
-.space .price{color:#ffb8dd}
-.space .tokens{margin-top:5px;color:#bda8ff;font-weight:bold}
-.space.current{outline:2px solid #ff79bd}
-.space.owned{background:#45365a}
-#playersList{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
-.player{background:#302940;border-radius:9px;padding:10px}
-.muted{color:#bcb5ce;font-size:13px}
-#message{white-space:pre-wrap;overflow-wrap:anywhere}
-</style>
+
+* { box-sizing: border-box; }
+
+:root {
+  --bg: #100d1b;
+  --panel: #1c172b;
+  --panel-light: #28213b;
+  --pink: #ff78c6;
+  --purple: #a78bfa;
+  --text: #faf7ff;
+  --muted: #aaa1c1;
+  --green: #76e8b0;
+  --border: #403354;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  padding: 24px;
+  background:
+    radial-gradient(ellipse at 10% 0%, #462050 0, transparent 38%),
+    radial-gradient(ellipse at 100% 30%, #25204c 0, transparent 35%),
+    var(--bg);
+  color: var(--text);
+  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+main {
+  max-width: 1180px;
+  margin: auto;
+}
+
+h1 {
+  text-align: center;
+  font-size: clamp(30px, 5vw, 48px);
+  letter-spacing: -1.5px;
+  margin: 8px 0 4px;
+  color: var(--pink);
+  text-shadow: 0 0 30px #ff78c644;
+}
+
+h2, h3 { letter-spacing: -.4px; }
+h2 { margin-top: 0; }
+
+#entry {
+  max-width: 460px;
+  margin: 32px auto;
+}
+
+.panel {
+  background: linear-gradient(145deg, #241d35, #191525);
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  padding: 24px;
+  margin: 18px 0;
+  box-shadow: 0 12px 40px #00000020;
+}
+
+input {
+  display: block;
+  width: 100%;
+  padding: 14px 16px;
+  margin: 8px 0 18px;
+  color: white;
+  background: #120f1d;
+  border: 1px solid #514366;
+  border-radius: 12px;
+  font: inherit;
+  outline: none;
+}
+
+input:focus {
+  border-color: var(--pink);
+  box-shadow: 0 0 0 3px #ff78c622;
+}
+
+button {
+  border: 0;
+  border-radius: 12px;
+  padding: 13px 18px;
+  margin: 4px;
+  font: inherit;
+  font-weight: 750;
+  cursor: pointer;
+  color: #241426;
+  background: linear-gradient(135deg, #ff9ad7, var(--pink));
+  box-shadow: 0 5px 18px #ff78c61c;
+  transition: transform .15s, filter .15s;
+}
+
+button:hover:not(:disabled) {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+}
+
+button:active:not(:disabled) { transform: translateY(0); }
+
+button:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.secondary {
+  color: white;
+  background: var(--panel-light);
+  border: 1px solid #504365;
+  box-shadow: none;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.row > * { flex: 1; }
+
+.hidden { display: none !important; }
+
+#roomCode {
+  color: var(--pink);
+  font-size: 28px;
+  font-weight: 850;
+  letter-spacing: 4px;
+}
+
+#playersList, #gamePlayers {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+  margin: 16px 0;
+}
+
+.player {
+  background: #2b233d;
+  border: 1px solid #473657;
+  border-radius: 14px;
+  padding: 14px;
+  overflow-wrap: anywhere;
+}
+
+.muted { color: var(--muted); }
+
+#game {
+  overflow-x: auto;
+}
+
+#board {
+  display: grid;
+  grid-template-columns: repeat(11, minmax(0, 1fr));
+  grid-template-rows: repeat(11, minmax(60px, auto));
+  gap: 4px;
+  min-width: 700px;
+  padding: 10px;
+  border-radius: 18px;
+  background: #110e1c;
+  border: 1px solid #504064;
+}
+
+.space {
+  min-width: 0;
+  padding: 6px 3px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  text-align: center;
+  overflow-wrap: anywhere;
+  background: #292239;
+  border: 1px solid #453752;
+  border-radius: 7px;
+  font-size: 10px;
+}
+
+.space strong {
+  font-size: 10px;
+  line-height: 1.25;
+}
+
+.space .price {
+  color: var(--pink);
+  font-weight: 750;
+}
+
+.space .tokens {
+  color: var(--purple);
+  font-weight: 800;
+}
+
+.space.owned {
+  background: #443054;
+  border-color: var(--purple);
+}
+
+.space.current {
+  outline: 2px solid var(--pink);
+  box-shadow: 0 0 14px #ff78c655;
+}
+
+.board-center {
+  grid-area: 2 / 2 / 11 / 11;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 20px;
+  background:
+    radial-gradient(circle, #3b2850 0, #20192f 65%);
+  border: 1px solid #453354;
+  border-radius: 14px;
+}
+
+.board-center h2 {
+  color: var(--pink);
+  font-size: clamp(25px, 4vw, 42px);
+  margin: 0;
+}
+
+.board-center p { color: var(--muted); }
+
+#turnInfo {
+  background: #302441;
+  border: 1px solid #62446d;
+  padding: 13px 16px;
+  border-radius: 12px;
+}
+
+#dice {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--pink);
+}
+
+#currentSpace {
+  color: var(--muted);
+}
+
+#owned {
+  line-height: 2;
+  overflow-wrap: anywhere;
+}
+
+#message {
+  border-radius: 12px;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 600px) {
+  body { padding: 12px; }
+  .panel { padding: 16px; border-radius: 17px; }
+  #entry { margin-top: 20px; }
+  .row { flex-direction: column; gap: 5px; }
+  .row button { width: 100%; margin: 2px 0; }
+  #roomCode { font-size: 23px; }
+}
 </head>
 <body>
 <main>
@@ -189,27 +421,89 @@ async function loadRoom(){
   }
 }
 
-async function drawBoard(players){
-  const ownR=await db.from("game_properties")
-    .select("space_index,owner_user_id").eq("room_id",roomId);
-  if(ownR.error)throw ownR.error;
-  const owned=new Map(ownR.data.map(p=>[p.space_index,p.owner_user_id]));
-  const board=$("board");board.innerHTML="";
-  for(let i=0;i<40;i++){
-    const d=document.createElement("div");
-    d.className="space"+(owned.has(i)?" owned":"")+
-      (players.some(p=>p.user_id===userId&&p.board_position===i)?" current":"");
-    const title=document.createElement("strong");title.textContent=i+" · "+names[i];
-    const price=document.createElement("div");price.className="price";
-    price.textContent=prices[i]?"$"+prices[i]:"";
-    const tokens=document.createElement("div");tokens.className="tokens";
-    tokens.textContent=players.filter(p=>p.board_position===i)
-      .map(p=>p.player_name.slice(0,3)).join(" · ");
-    d.append(title,price,tokens);board.append(d);
+
+async function drawBoard(players) {
+  const ownR = await db.from("game_properties")
+    .select("space_index,owner_user_id")
+    .eq("room_id", roomId);
+
+  if (ownR.error) throw ownR.error;
+
+  const owned = new Map(
+    ownR.data.map(p => [p.space_index, p.owner_user_id])
+  );
+
+  const board = $("board");
+  board.innerHTML = "";
+
+  const center = document.createElement("div");
+  center.className = "board-center";
+
+  const heading = document.createElement("h2");
+  heading.textContent = "FRIEND MONOPOLY";
+
+  const subtitle = document.createElement("p");
+  subtitle.textContent = "Roll the dice. Make your fortune.";
+
+  center.append(heading, subtitle);
+  board.append(center);
+
+  for (let i = 0; i < 40; i++) {
+    const d = document.createElement("div");
+    d.className = "space";
+
+    // Arrange all 40 spaces around the outside of the board.
+    let row, col;
+
+    if (i <= 10) {
+      row = 11;
+      col = 11 - i;
+    } else if (i <= 19) {
+      row = 21 - i;
+      col = 1;
+    } else if (i <= 30) {
+      row = 1;
+      col = i - 19;
+    } else {
+      row = i - 29;
+      col = 11;
+    }
+
+    d.style.gridRow = row;
+    d.style.gridColumn = col;
+
+    const onSpace = players.filter(
+      p => p.board_position === i
+    );
+
+    if (onSpace.some(p => p.user_id === userId)) {
+      d.classList.add("current");
+    }
+
+    if (owned.has(i)) d.classList.add("owned");
+
+    const title = document.createElement("strong");
+    title.textContent = names[i];
+
+    const price = document.createElement("div");
+    price.className = "price";
+    price.textContent = prices[i] ? "$" + prices[i] : "";
+
+    const tokens = document.createElement("div");
+    tokens.className = "tokens";
+    tokens.textContent = onSpace.map(p =>
+      p.player_name.slice(0, 3)
+    ).join(" · ");
+
+    d.append(title, price, tokens);
+    board.append(d);
   }
-  const space=names[myPosition];
-  $("currentSpace").textContent="Your space: "+space+" | Your money: $"+myMoney;
+
+  $("currentSpace").textContent =
+    "You're on " + names[myPosition] +
+    " · Balance: $" + myMoney.toLocaleString();
 }
+
 
 async function drawProperties(){
   const r=await db.from("game_properties")
