@@ -3,17 +3,327 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#100d1b">
+<meta name="theme-color" content="#101317">
 <title>Friend Monopoly</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{color-scheme:dark;--bg:#100d1b;--panel:#1c172b;--panel2:#29213b;--pink:#ff83cb;--purple:#b69aff;--green:#80e7b4;--text:#fffaff;--muted:#aaa2bd;--border:#433553;--danger:#ff8c9c}
-*{box-sizing:border-box}body{margin:0;min-height:100vh;padding:18px;background:radial-gradient(ellipse at 8% 0%,#48204f 0,transparent 38%),radial-gradient(ellipse at 100% 20%,#27204e 0,transparent 34%),var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}button,input{font:inherit}button{border:1px solid transparent;border-radius:12px;padding:12px 16px;background:linear-gradient(135deg,#ffa4dc,var(--pink));color:#241326;font-weight:850;cursor:pointer;transition:transform .16s,filter .16s,box-shadow .16s;box-shadow:0 5px 18px #ff83cb14}button:hover:not(:disabled){filter:brightness(1.1);transform:translateY(-2px);box-shadow:0 8px 22px #ff83cb2a}button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.38;cursor:not-allowed;box-shadow:none}button.secondary{background:var(--panel2);border-color:var(--border);color:var(--text);box-shadow:none}button.green{background:linear-gradient(135deg,#a6f5ce,var(--green));color:#10271e}button.danger{background:#442432;color:#ffdce3;border-color:#704050;box-shadow:none}input{width:100%;min-width:0;padding:13px 14px;border:1px solid #504363;border-radius:12px;background:#120f1d;color:white;outline:none}input:focus{border-color:var(--pink);box-shadow:0 0 0 3px #ff83cb20}label{display:block;color:var(--muted);font-size:13px;margin:12px 0 6px}h1{font-size:clamp(32px,6vw,52px);line-height:1.1;letter-spacing:-1.8px;text-align:center;color:var(--pink);margin:12px 0 8px;text-shadow:0 0 28px #ff83cb35}h2{margin:0 0 12px;font-size:21px}h3{margin:0 0 8px}p{margin:7px 0}small,.muted{color:var(--muted)}header,main{max-width:1250px;margin:auto}header{text-align:center;margin-bottom:24px}header p{color:var(--muted)}.logo-mark{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:15px;background:#ff83cb20;border:1px solid #ff83cb55;font-size:23px;animation:float 3s ease-in-out infinite}@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}.panel{padding:21px;margin:15px 0;border:1px solid var(--border);border-radius:20px;background:linear-gradient(145deg,#251e36,#191424);box-shadow:0 12px 38px #0002;animation:fade-in .25s ease both}@keyframes fade-in{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}.hidden{display:none!important}.row{display:flex;flex-wrap:wrap;gap:9px;align-items:center}.row>button{flex:1}.entry{max-width:480px;margin:30px auto}.entry .row{margin-top:16px}.section-title,.code-line{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}#roomCode{display:inline-block;color:var(--pink);font-size:30px;letter-spacing:5px;font-weight:900;overflow-wrap:anywhere}.player-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:14px 0}.player-card{--player-color:var(--purple);background:#2b233e;border:1px solid #493958;border-left:4px solid var(--player-color);border-radius:14px;padding:13px;min-width:0;overflow-wrap:anywhere;transition:transform .18s,border-color .18s}.player-card:hover{transform:translateY(-2px)}.player-card.me{box-shadow:0 0 0 1px var(--pink),0 0 18px #ff83cb12}.player-card.active-turn{background:#26372f;border-color:var(--green)}.player-top{display:flex;align-items:center;gap:9px}.player-token{display:inline-flex;align-items:center;justify-content:center;flex:0 0 31px;height:31px;border-radius:10px;color:#160f20;font-weight:950;background:var(--player-color);box-shadow:0 0 12px color-mix(in srgb,var(--player-color),transparent 55%)}.player-name{font-weight:850;font-size:16px;overflow-wrap:anywhere}.player-status{color:var(--muted);font-size:12px}.tag{display:inline-block;padding:3px 8px;margin:5px 4px 0 0;border-radius:99px;font-size:10px;font-weight:900;background:#40334f;color:#eee1ff}.tag.ready,.tag.online{background:#1f4937;color:#b5f7d5}.tag.host{background:#53364c;color:#ffc4e8}.tag.away{background:#514324;color:#ffe4a0}.tag.offline,.tag.left{background:#4a2932;color:#ffc2ca}#message{white-space:pre-wrap;overflow-wrap:anywhere;border-radius:12px;padding:12px 15px;background:#28213b;border:1px solid var(--border);margin:14px 0}#message:empty{display:none}#message.error{color:#ffc4ce;border-color:#77404d;background:#351d2a}#message.success{color:#b9f8d8;border-color:#32674f;background:#192e27}#game-layout{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(270px,1fr);gap:15px;align-items:start}#board-wrap{overflow:auto;padding:2px 2px 8px}#board{display:grid;grid-template-columns:repeat(11,minmax(0,1fr));grid-template-rows:repeat(11,minmax(68px,auto));gap:4px;min-width:700px;padding:9px;border-radius:18px;background:#100d19;border:1px solid #493858}.space{--owner-color:#493958;position:relative;min-width:0;padding:5px 2px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center;overflow-wrap:anywhere;background:#292239;border:1px solid #493958;border-radius:7px;font-size:10px;line-height:1.2;transition:transform .2s,background .2s,border-color .2s}.space strong{font-size:10px;line-height:1.25}.space .price{color:var(--pink);font-weight:900}.space .tokens{display:flex;flex-wrap:wrap;justify-content:center;gap:3px;margin-top:2px}.mini-token{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:7px;font-size:9px;font-weight:950;color:#170f20;border:1px solid #ffffff66;box-shadow:0 2px 8px #0005;animation:token-pop .28s ease both}@keyframes token-pop{from{transform:scale(.5) rotate(-15deg);opacity:.2}to{transform:scale(1) rotate(0);opacity:1}}.space.owned{background:#332640;border-color:var(--owner-color);box-shadow:inset 0 3px 0 var(--owner-color)}.space.current{outline:2px solid var(--pink);outline-offset:1px;box-shadow:0 0 14px #ff83cb66}.space.current .tokens{filter:drop-shadow(0 0 4px #fff5)}.owner-label{font-size:9px;color:var(--owner-color);font-weight:900;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.board-center{grid-area:2/2/11/11;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;border:1px solid #493858;border-radius:14px;background:radial-gradient(circle,#3c2850,#20192f 70%)}.board-center h2{font-size:clamp(24px,4vw,42px);letter-spacing:-1px;color:var(--pink);margin:0}.board-center p{color:var(--muted)}.legend{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}.legend-item{display:flex;align-items:center;gap:6px;background:#2b233e;border:1px solid var(--border);border-radius:9px;padding:6px 9px;font-size:11px}.legend-dot{width:10px;height:10px;border-radius:4px;display:inline-block}.stat{padding:13px;background:#2b233e;border:1px solid #493958;border-radius:14px;min-width:0}.stat .label{color:var(--muted);font-size:11px}.stat .value{font-size:23px;font-weight:950;overflow-wrap:anywhere}.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:12px 0}#turnInfo{background:#302441;border:1px solid #62446d;padding:13px;border-radius:12px;margin:12px 0}#turnInfo.my-turn{border-color:var(--green);box-shadow:0 0 18px #80e7b414}#dice{font-size:28px;font-weight:900;color:var(--pink);letter-spacing:2px}#dice.rolling{animation:dice-roll .55s ease-in-out}@keyframes dice-roll{0%{transform:rotate(0) scale(1)}25%{transform:rotate(-12deg) scale(1.15)}50%{transform:rotate(14deg) scale(1.18)}75%{transform:rotate(-8deg) scale(1.1)}100%{transform:rotate(0) scale(1)}}#owned{display:grid;gap:7px}.property-chip{display:flex;align-items:center;gap:9px;background:#2b233e;border:1px solid #493958;border-radius:10px;padding:9px;font-size:13px}.property-chip .legend-dot{width:13px;height:30px;flex-shrink:0}.action-stack{display:grid;gap:8px}.action-stack button{width:100%;margin:0}#syncStatus{font-size:12px;color:var(--green)}#syncStatus.bad{color:var(--danger)}.sound-toggle{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:12px}.sound-toggle input{width:auto;accent-color:var(--pink)}.toast{animation:toast-in .25s ease}@keyframes toast-in{from{transform:translateY(7px);opacity:0}to{transform:translateY(0);opacity:1}}footer{text-align:center;color:var(--muted);padding:24px 0 10px;font-size:12px}
-@media(max-width:850px){body{padding:12px}#game-layout{grid-template-columns:minmax(0,1fr)}.panel{padding:16px;border-radius:16px}.entry{margin-top:18px}}@media(max-width:430px){.row{flex-direction:column;align-items:stretch}.row button{width:100%}#roomCode{font-size:25px}.stat .value{font-size:20px}}@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition:none!important}}
+:root{
+  color-scheme:dark;
+  --bg:#101317;
+  --surface:#171b20;
+  --panel:#1e242b;
+  --panel2:#252d35;
+  --ink:#f8f4eb;
+  --text:#f8f4eb;
+  --muted:#a8b1b8;
+  --border:#36414a;
+  --pink:#e26d83;
+  --purple:#9d8df1;
+  --green:#55c896;
+  --gold:#e1b85b;
+  --cyan:#5db7d5;
+  --danger:#ff8e8e;
+  --shadow:0 20px 60px rgba(0,0,0,.28);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  min-height:100vh;
+  padding:24px;
+  background:var(--bg);
+  color:var(--text);
+  font:15px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+button,input{font:inherit}
+button{
+  min-height:44px;
+  border:1px solid transparent;
+  border-radius:8px;
+  padding:11px 16px;
+  background:var(--gold);
+  color:#15110a;
+  font-weight:850;
+  cursor:pointer;
+  transition:transform .16s,filter .16s,box-shadow .16s,border-color .16s;
+  box-shadow:0 10px 24px rgba(225,184,91,.14);
+}
+button:hover:not(:disabled){filter:brightness(1.06);transform:translateY(-1px);box-shadow:0 14px 30px rgba(225,184,91,.2)}
+button:active:not(:disabled){transform:translateY(0) scale(.99)}
+button:disabled{opacity:.42;cursor:not-allowed;box-shadow:none}
+button.secondary{background:var(--panel2);border-color:var(--border);color:var(--text);box-shadow:none}
+button.green{background:var(--green);color:#071b14}
+button.danger{background:#3a2026;color:#ffdfe3;border-color:#6f3e48;box-shadow:none}
+input{
+  width:100%;
+  min-width:0;
+  padding:13px 14px;
+  border:1px solid #44515d;
+  border-radius:8px;
+  background:#11161b;
+  color:white;
+  outline:none;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.03);
+}
+input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(225,184,91,.18)}
+label{display:block;color:var(--muted);font-size:13px;font-weight:700;margin:12px 0 6px}
+h1{
+  font-size:48px;
+  line-height:1.05;
+  text-align:center;
+  color:var(--ink);
+  margin:10px 0 8px;
+}
+h2{margin:0 0 12px;font-size:21px}
+h3{margin:0 0 8px}
+p{margin:7px 0}
+small,.muted{color:var(--muted)}
+header,main,footer{position:relative;max-width:1250px;margin:auto}
+header{
+  text-align:center;
+  margin-bottom:24px;
+  padding:34px 18px 8px;
+}
+header p{color:var(--muted);font-size:16px}
+.eyebrow{
+  margin:12px 0 0;
+  color:var(--gold);
+  font-size:12px;
+  font-weight:900;
+  text-transform:uppercase;
+}
+.logo-mark{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:52px;
+  height:52px;
+  border-radius:8px;
+  background:var(--panel);
+  border:1px solid #5a4c31;
+  font-size:25px;
+  box-shadow:0 12px 32px rgba(0,0,0,.24);
+  animation:float 3s ease-in-out infinite;
+}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.panel{
+  padding:21px;
+  margin:15px 0;
+  border:1px solid var(--border);
+  border-radius:8px;
+  background:var(--surface);
+  box-shadow:var(--shadow);
+  animation:fade-in .25s ease both;
+  position:relative;
+  overflow:hidden;
+}
+.panel::before{
+  content:"";
+  position:absolute;
+  inset:0 0 auto;
+  height:3px;
+  background:var(--gold);
+  opacity:.72;
+}
+@keyframes fade-in{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.hidden{display:none!important}
+.row{display:flex;flex-wrap:wrap;gap:9px;align-items:center}
+.row>button{flex:1}
+.entry{
+  max-width:500px;
+  margin:30px auto;
+  border-top:4px solid var(--gold);
+}
+.entry .row{margin-top:16px}
+.section-title,.code-line{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+#roomCode{
+  display:inline-block;
+  color:var(--gold);
+  font-size:30px;
+  letter-spacing:4px;
+  font-weight:950;
+  overflow-wrap:anywhere;
+}
+.player-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:14px 0}
+.player-card{
+  --player-color:var(--purple);
+  background:var(--panel);
+  border:1px solid #3f4b55;
+  border-left:4px solid var(--player-color);
+  border-radius:8px;
+  padding:13px;
+  min-width:0;
+  overflow-wrap:anywhere;
+  transition:transform .18s,border-color .18s,background .18s,box-shadow .18s;
+}
+.player-card:hover{transform:translateY(-2px);box-shadow:0 12px 24px rgba(0,0,0,.18)}
+.player-card.me{box-shadow:0 0 0 1px var(--gold),0 14px 32px rgba(225,184,91,.08)}
+.player-card.active-turn{background:#1f2d27;border-color:var(--green)}
+.player-card.active-turn .player-token{animation:token-glow 1.4s ease-in-out infinite}
+.player-top{display:flex;align-items:center;gap:9px}
+.player-token{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  flex:0 0 31px;
+  height:31px;
+  border-radius:8px;
+  color:#101317;
+  font-weight:950;
+  background:var(--player-color);
+  box-shadow:0 8px 16px rgba(0,0,0,.22);
+}
+.player-name{font-weight:850;font-size:16px;overflow-wrap:anywhere}
+.player-status{color:var(--muted);font-size:12px}
+.tag{
+  display:inline-block;
+  padding:3px 8px;
+  margin:5px 4px 0 0;
+  border-radius:999px;
+  font-size:10px;
+  font-weight:900;
+  background:#303943;
+  color:#edf3f6;
+}
+.tag.ready,.tag.online{background:#193d30;color:#b5f7d5}
+.tag.host{background:#413522;color:#ffe0a0}
+.tag.away{background:#453b22;color:#ffe4a0}
+.tag.offline,.tag.left{background:#462830;color:#ffc2ca}
+#message{
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+  border-radius:8px;
+  padding:12px 15px;
+  background:var(--panel);
+  border:1px solid var(--border);
+  margin:14px 0;
+}
+#message:empty{display:none}
+#message.error{color:#ffc4ce;border-color:#77404d;background:#351d2a}
+#message.success{color:#b9f8d8;border-color:#32674f;background:#192e27}
+#game-layout{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(290px,1fr);gap:16px;align-items:start}
+#board-wrap{overflow:auto;padding:2px 2px 8px}
+#board{
+  display:grid;
+  grid-template-columns:repeat(11,minmax(0,1fr));
+  grid-template-rows:repeat(11,minmax(68px,auto));
+  gap:4px;
+  min-width:700px;
+  padding:9px;
+  border-radius:8px;
+  background:#0d1115;
+  border:1px solid #3f4b55;
+  box-shadow:inset 0 0 0 2px rgba(225,184,91,.08),0 18px 36px rgba(0,0,0,.26);
+}
+.space{
+  --owner-color:#5b6671;
+  position:relative;
+  min-width:0;
+  padding:5px 2px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+  text-align:center;
+  overflow-wrap:anywhere;
+  background:#202731;
+  border:1px solid #3f4b55;
+  border-radius:6px;
+  font-size:10px;
+  line-height:1.2;
+  transition:transform .2s,background .2s,border-color .2s,box-shadow .2s;
+}
+.space:hover{transform:translateY(-2px);box-shadow:0 10px 20px rgba(0,0,0,.18);z-index:2}
+.space strong{font-size:10px;line-height:1.25}
+.space .price{color:var(--gold);font-weight:900}
+.space .tokens{display:flex;flex-wrap:wrap;justify-content:center;gap:3px;margin-top:2px}
+.mini-token{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:20px;
+  height:20px;
+  border-radius:7px;
+  font-size:9px;
+  font-weight:950;
+  color:#101317;
+  border:1px solid #ffffff66;
+  box-shadow:0 2px 8px #0005;
+  animation:token-pop .28s ease both;
+}
+@keyframes token-pop{from{transform:scale(.5) rotate(-12deg);opacity:.2}to{transform:scale(1) rotate(0);opacity:1}}
+@keyframes token-glow{0%,100%{box-shadow:0 8px 16px rgba(0,0,0,.22)}50%{box-shadow:0 0 0 4px rgba(85,200,150,.16),0 12px 22px rgba(0,0,0,.28)}}
+.space.owned{background:#272d35;border-color:var(--owner-color);box-shadow:inset 0 3px 0 var(--owner-color)}
+.space.current{outline:2px solid var(--gold);outline-offset:1px;box-shadow:0 0 0 4px rgba(225,184,91,.12);animation:current-space 1.8s ease-in-out infinite}
+.space.current .tokens{filter:drop-shadow(0 0 4px #fff5)}
+@keyframes current-space{0%,100%{outline-color:var(--gold)}50%{outline-color:var(--green)}}
+.owner-label{font-size:9px;color:var(--owner-color);font-weight:900;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.board-center{
+  grid-area:2/2/11/11;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:20px;
+  border:1px solid #3f4b55;
+  border-radius:8px;
+  background:#171d23;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.025);
+}
+.board-center h2{font-size:38px;color:var(--ink);margin:0}
+.board-center p{color:var(--muted)}
+.legend{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+.legend-item{display:flex;align-items:center;gap:6px;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:6px 9px;font-size:11px}
+.legend-dot{width:10px;height:10px;border-radius:4px;display:inline-block}
+.stat{padding:13px;background:var(--panel);border:1px solid #3f4b55;border-radius:8px;min-width:0}
+.stat .label{color:var(--muted);font-size:11px;font-weight:800}
+.stat .value{font-size:23px;font-weight:950;overflow-wrap:anywhere}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:12px 0}
+#turnInfo{background:#202a31;border:1px solid #40515b;padding:13px;border-radius:8px;margin:12px 0}
+#turnInfo.my-turn{border-color:var(--green);box-shadow:0 0 0 4px rgba(85,200,150,.11)}
+#dice{font-size:28px;font-weight:900;color:var(--gold);letter-spacing:2px}
+#dice:not(.rolling){animation:dice-idle 2.4s ease-in-out infinite}
+#dice.rolling{animation:dice-roll .55s ease-in-out}
+@keyframes dice-idle{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+@keyframes dice-roll{0%{transform:rotate(0) scale(1)}25%{transform:rotate(-12deg) scale(1.15)}50%{transform:rotate(14deg) scale(1.18)}75%{transform:rotate(-8deg) scale(1.1)}100%{transform:rotate(0) scale(1)}}
+#owned{display:grid;gap:7px}
+.property-chip{display:flex;align-items:center;gap:9px;background:var(--panel);border:1px solid #3f4b55;border-radius:8px;padding:9px;font-size:13px}
+.property-chip .legend-dot{width:13px;height:30px;flex-shrink:0}
+.action-stack{display:grid;gap:8px}
+.action-stack button{width:100%;margin:0}
+#skipTurnBtn{border-color:#6d5940;color:#ffe2a4}
+#skipTurnBtn:not(.hidden){display:inline-flex!important}
+#syncStatus{font-size:12px;color:var(--green);font-weight:800}
+#syncStatus.bad{color:var(--danger)}
+.sound-toggle{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:12px}
+.sound-toggle input{width:auto;accent-color:var(--gold)}
+.toast{animation:toast-in .25s ease}
+@keyframes toast-in{from{transform:translateY(7px);opacity:0}to{transform:translateY(0);opacity:1}}
+footer{text-align:center;color:var(--muted);padding:24px 0 10px;font-size:12px}
+@media(max-width:850px){
+  body{padding:14px}
+  h1{font-size:38px}
+  header{padding-top:20px}
+  #game-layout{grid-template-columns:minmax(0,1fr)}
+  .panel{padding:16px}
+  .entry{margin-top:18px}
+}
+@media(max-width:430px){
+  body{padding:10px}
+  h1{font-size:32px}
+  .row{flex-direction:column;align-items:stretch}
+  .row button{width:100%}
+  #roomCode{font-size:25px}
+  .stat .value{font-size:20px}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition:none!important}
+}
 </style>
 </head>
 <body>
-<header><div class="logo-mark">🎲</div><h1>Friend Monopoly</h1><p>Roll the dice. Buy the streets. Beat your friends.</p></header>
+<header><div class="logo-mark">🎲</div><p class="eyebrow">Private board room</p><h1>Friend Monopoly</h1><p>Roll the dice, buy the streets, and build the sharpest empire at the table.</p></header>
 <main>
 <section id="entry" class="panel entry">
 <h2>Let's play</h2><p class="muted">Enter your name to create a room or join your friends.</p>
@@ -30,7 +340,7 @@
 <div class="panel"><div class="code-line"><div><span class="muted">ROOM</span><strong id="gameRoomCode" style="color:var(--pink);letter-spacing:3px;margin-left:8px"></strong></div><span id="syncStatus">● Connected</span><label class="sound-toggle"><input type="checkbox" id="soundToggle" checked> Sound effects</label></div><div id="turnInfo">Waiting for game state...</div></div>
 <div id="game-layout"><section class="panel" style="padding:12px"><div id="board-wrap"><div id="board"></div></div><div id="boardLegend" class="legend"></div><p class="muted" style="font-size:12px;margin:10px 4px 0">Player tokens appear on the board. A property's coloured top edge shows who owns it.</p></section>
 <aside>
-<section class="panel"><h2>Your turn</h2><div class="stats"><div class="stat"><div class="label">YOUR MONEY</div><div id="moneyValue" class="value">$0</div></div><div class="stat"><div class="label">YOUR SPACE</div><div id="positionValue" class="value">-</div></div></div><div id="dice">🎲 🎲</div><p id="diceResult" class="muted">Roll to move around the board.</p><div class="action-stack" style="margin-top:14px"><button id="rollBtn">Roll dice</button><button id="buyBtn" class="green" disabled>Buy property</button><button id="endTurnBtn" class="secondary" disabled>End turn</button></div><div id="currentSpace" class="muted" style="margin-top:12px"></div></section>
+<section class="panel"><h2>Your turn</h2><div class="stats"><div class="stat"><div class="label">YOUR MONEY</div><div id="moneyValue" class="value">$0</div></div><div class="stat"><div class="label">YOUR SPACE</div><div id="positionValue" class="value">-</div></div></div><div id="dice">🎲 🎲</div><p id="diceResult" class="muted">Roll to move around the board.</p><div class="action-stack" style="margin-top:14px"><button id="rollBtn">Roll dice</button><button id="buyBtn" class="green" disabled>Buy property</button><button id="endTurnBtn" class="secondary" disabled>End turn</button><button id="skipTurnBtn" class="secondary hidden" disabled>Skip stuck turn</button></div><div id="currentSpace" class="muted" style="margin-top:12px"></div></section>
 <section class="panel"><h2>Players</h2><div id="gamePlayers" class="player-list"></div></section>
 <section class="panel"><h2>Properties you own</h2><div id="owned" class="muted">No properties yet.</div></section>
 <section class="panel"><button id="leaveGameBtn" class="danger" style="width:100%">Leave game</button><p class="muted" style="font-size:12px">Other players will see that you left. If you simply close the tab, your status changes to disconnected after your heartbeat times out.</p></section>
@@ -43,16 +353,64 @@ const SUPABASE_URL="https://yghlbyfkkwpzmvbkwbob.supabase.co";
 const SUPABASE_KEY="sb_publishable_42gwT-h8zvxfbQeXv_HxRQ_BKxAOKY3";
 const $=id=>document.getElementById(id);
 const {createClient}=supabase;const db=createClient(SUPABASE_URL,SUPABASE_KEY);
-let userId=null,roomId=null,roomCode=null,roomStatus=null,roomCreatorId=null,players=[],room=null,spaces=[],properties=[],pollTimer=null,heartbeatTimer=null,isBusy=false,lastDiceSignature="",lastPlayerPositions=new Map(),previousPresence=new Map(),lastMessageTimer=null,heartbeatInFlight=false;
-const palette=["#ff83cb","#80e7b4","#b69aff","#ffd166","#70d6ff","#ff8c9c","#caff8a","#f6a6ff"];
-const fallbackSpaces=[
-["GO","go",0,0],["Mediterranean Avenue","property",60,2],["Community Chest","chest",0,0],["Baltic Avenue","property",60,4],["Income Tax","tax",0,0],["Reading Railroad","railroad",200,25],["Oriental Avenue","property",100,6],["Chance","chance",0,0],["Vermont Avenue","property",100,6],["Connecticut Avenue","property",120,8],["Jail / Just Visiting","jail",0,0],["St. Charles Place","property",140,10],["Electric Company","utility",150,0],["States Avenue","property",140,10],["Virginia Avenue","property",160,12],["Pennsylvania Railroad","railroad",200,25],["St. James Place","property",180,14],["Community Chest","chest",0,0],["Tennessee Avenue","property",180,14],["New York Avenue","property",200,16],["Free Parking","parking",0,0],["Kentucky Avenue","property",220,18],["Chance","chance",0,0],["Indiana Avenue","property",220,18],["Illinois Avenue","property",240,20],["B&O Railroad","railroad",200,25],["Atlantic Avenue","property",260,22],["Ventnor Avenue","property",260,22],["Water Works","utility",150,0],["Marvin Gardens","property",280,24],["Go To Jail","gotojail",0,0],["Pacific Avenue","property",300,26],["North Carolina Avenue","property",300,26],["Community Chest","chest",0,0],["Pennsylvania Avenue","property",320,28],["Short Line","railroad",200,25],["Chance","chance",0,0],["Park Place","property",350,35],["Luxury Tax","tax",0,0],["Boardwalk","property",400,50]
-].map((s,i)=>({space_index:i,name:s[0],space_type:s[1],price:s[2],rent:s[3]}));
+let userId=null,roomId=null,roomCode=null,roomStatus=null,roomCreatorId=null,players=[],room=null,spaces=[],properties=[],pollTimer=null,heartbeatTimer=null,isBusy=false,lastDiceSignature="",lastPlayerPositions=new Map(),previousPresence=new Map(),lastMessageTimer=null,heartbeatInFlight=false,autoSkipInFlight=false;
+const STORAGE_KEY="friendMonopoly:lastRoom";
+const STUCK_TURN_SKIP_AFTER_MS=45000;
+const palette=["#e26d83","#55c896","#9d8df1","#e1b85b","#5db7d5","#ff8e8e","#b6df68","#d488d8"];
+
+// Edit this list to customize the board. Keep 40 spaces and use type "property", "railroad",
+// or "utility" for buyable spaces. Change name, price, and rent freely.
+const BOARD_SPACES=[
+{name:"GO",type:"go",price:0,rent:0},
+{name:"Mediterranean Avenue",type:"property",price:60,rent:2},
+{name:"Community Chest",type:"chest",price:0,rent:0},
+{name:"Baltic Avenue",type:"property",price:60,rent:4},
+{name:"Income Tax",type:"tax",price:0,rent:0},
+{name:"Reading Railroad",type:"railroad",price:200,rent:25},
+{name:"Oriental Avenue",type:"property",price:100,rent:6},
+{name:"Chance",type:"chance",price:0,rent:0},
+{name:"Vermont Avenue",type:"property",price:100,rent:6},
+{name:"Connecticut Avenue",type:"property",price:120,rent:8},
+{name:"Jail / Just Visiting",type:"jail",price:0,rent:0},
+{name:"St. Charles Place",type:"property",price:140,rent:10},
+{name:"Electric Company",type:"utility",price:150,rent:0},
+{name:"States Avenue",type:"property",price:140,rent:10},
+{name:"Virginia Avenue",type:"property",price:160,rent:12},
+{name:"Pennsylvania Railroad",type:"railroad",price:200,rent:25},
+{name:"St. James Place",type:"property",price:180,rent:14},
+{name:"Community Chest",type:"chest",price:0,rent:0},
+{name:"Tennessee Avenue",type:"property",price:180,rent:14},
+{name:"New York Avenue",type:"property",price:200,rent:16},
+{name:"Free Parking",type:"parking",price:0,rent:0},
+{name:"Kentucky Avenue",type:"property",price:220,rent:18},
+{name:"Chance",type:"chance",price:0,rent:0},
+{name:"Indiana Avenue",type:"property",price:220,rent:18},
+{name:"Illinois Avenue",type:"property",price:240,rent:20},
+{name:"B&O Railroad",type:"railroad",price:200,rent:25},
+{name:"Atlantic Avenue",type:"property",price:260,rent:22},
+{name:"Ventnor Avenue",type:"property",price:260,rent:22},
+{name:"Water Works",type:"utility",price:150,rent:0},
+{name:"Marvin Gardens",type:"property",price:280,rent:24},
+{name:"Go To Jail",type:"gotojail",price:0,rent:0},
+{name:"Pacific Avenue",type:"property",price:300,rent:26},
+{name:"North Carolina Avenue",type:"property",price:300,rent:26},
+{name:"Community Chest",type:"chest",price:0,rent:0},
+{name:"Pennsylvania Avenue",type:"property",price:320,rent:28},
+{name:"Short Line",type:"railroad",price:200,rent:25},
+{name:"Chance",type:"chance",price:0,rent:0},
+{name:"Park Place",type:"property",price:350,rent:35},
+{name:"Luxury Tax",type:"tax",price:0,rent:0},
+{name:"Boardwalk",type:"property",price:400,rent:50}
+];
+const fallbackSpaces=BOARD_SPACES.map((s,i)=>({space_index:i,name:s.name,space_type:s.type,price:s.price,rent:s.rent}));
 function showMessage(text,kind=""){const b=$("message");b.textContent=text||"";b.className=kind;if(text){b.classList.add("toast");clearTimeout(lastMessageTimer);lastMessageTimer=setTimeout(()=>b.classList.remove("toast"),400)}}
 function clearMessage(){showMessage("")}
-function setBusy(v){isBusy=v;$("createBtn").disabled=v;$("joinBtn").disabled=v;$("readyBtn").disabled=v;$("startBtn").disabled=v||$("startBtn").dataset.blocked==="true";$("rollBtn").disabled=v||$("rollBtn").dataset.blocked==="true";$("buyBtn").disabled=v||$("buyBtn").dataset.blocked==="true";$("endTurnBtn").disabled=v||$("endTurnBtn").dataset.blocked==="true"}
+function setBusy(v){isBusy=v;$("createBtn").disabled=v;$("joinBtn").disabled=v;$("readyBtn").disabled=v;$("startBtn").disabled=v||$("startBtn").dataset.blocked==="true";$("rollBtn").disabled=v||$("rollBtn").dataset.blocked==="true";$("buyBtn").disabled=v||$("buyBtn").dataset.blocked==="true";$("endTurnBtn").disabled=v||$("endTurnBtn").dataset.blocked==="true";$("skipTurnBtn").disabled=v||$("skipTurnBtn").dataset.blocked==="true"}
 function randomCode(){const c="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";let s="";for(let i=0;i<6;i++)s+=c[Math.floor(Math.random()*c.length)];return s}
 function cleanCode(v){return String(v||"").trim().toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,8)}
+function saveRoomSession(name,code,id){try{localStorage.setItem(STORAGE_KEY,JSON.stringify({name,code,id,savedAt:Date.now()}))}catch{}}
+function loadSavedSession(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||"null")}catch{return null}}
+function clearSavedSession(){try{localStorage.removeItem(STORAGE_KEY)}catch{}}
 function money(v){return "$"+Number(v||0).toLocaleString("en-US")}
 function playerByUser(id){return players.find(p=>p.user_id===id)}
 function myPlayer(){return playerByUser(userId)}
@@ -61,26 +419,36 @@ function spaceAt(i){return spaces.find(s=>Number(s.space_index)===Number(i))||fa
 function setSection(s){$("entry").classList.toggle("hidden",s!=="entry");$("lobby").classList.toggle("hidden",s!=="lobby");$("game").classList.toggle("hidden",s!=="game")}
 function colorFor(p,i){return p?.player_color||palette[players.findIndex(x=>x.user_id===p?.user_id)%palette.length]||palette[i%palette.length]}
 function statusFor(p){if(p.left_at||p.presence_status==="left")return["LEFT","left"];if(p.presence_status==="disconnected")return["DISCONNECTED","offline"];if(p.presence_status==="away")return["AWAY","away"];return["ONLINE","online"]}
+function isPlayerOut(p){return !p||!!p.left_at||p.presence_status==="left"||p.presence_status==="disconnected"}
+function activeTurnPlayers(){return players.filter(p=>!isPlayerOut(p))}
+function currentTurnPlayer(){return players.find(p=>p.user_id===room?.current_turn_user_id)}
+function stuckTurnInfo(){const p=currentTurnPlayer();if(!room||room.status!=="playing"||!p||p.user_id===userId)return null;if(p.left_at||p.presence_status==="left")return{player:p,reason:"left",ready:true};if(p.presence_status==="disconnected")return{player:p,reason:"disconnected",ready:true};if(p.presence_status==="away"){const seen=Date.parse(p.last_seen_at||p.updated_at||p.joined_at||"");return{player:p,reason:"away",ready:!!seen&&Date.now()-seen>STUCK_TURN_SKIP_AFTER_MS}}return null}
+function nextTurnUserAfter(skipUserId){const active=activeTurnPlayers().filter(p=>p.user_id!==skipUserId);if(!active.length)return null;const currentIndex=players.findIndex(p=>p.user_id===skipUserId);for(let step=1;step<=players.length;step++){const candidate=players[(currentIndex+step+players.length)%players.length];if(candidate&&active.some(p=>p.user_id===candidate.user_id))return candidate.user_id}return active[0].user_id}
 function sound(type){if(!$("soundToggle")?.checked)return;try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;const ctx=new AC();const notes={click:[520,.055],roll:[260,.08],buy:[660,.09],success:[780,.11],error:[170,.13],leave:[300,.08]};const [freq,duration]=notes[type]||notes.click;const o=ctx.createOscillator(),g=ctx.createGain();o.type=type==="error"?"triangle":"sine";o.frequency.setValueAtTime(freq,ctx.currentTime);if(type==="roll"){o.frequency.exponentialRampToValueAtTime(650,ctx.currentTime+duration)}else if(type==="success"||type==="buy"){o.frequency.exponentialRampToValueAtTime(freq*1.35,ctx.currentTime+duration)}g.gain.setValueAtTime(.0001,ctx.currentTime);g.gain.exponentialRampToValueAtTime(.09,ctx.currentTime+.012);g.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+duration);o.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+duration+.02);o.onended=()=>ctx.close()}catch{}}
 async function ensureGuest(){const {data:{session},error}=await db.auth.getSession();if(error)throw error;if(session?.user){userId=session.user.id;return}const {data,error:signError}=await db.auth.signInAnonymously();if(signError)throw new Error("Guest sign-in failed. Check Supabase Authentication → Sign In / Providers → Anonymous sign-ins.\n"+signError.message);userId=data.user.id}
 async function runCleanup(){const {error}=await db.rpc("cleanup_abandoned_rooms");if(error)console.warn("Room cleanup:",error.message)}
-async function enterRoom(action){if(isBusy)return;clearMessage();const name=$("playerName").value.trim();if(!name){showMessage("Please enter your name first.","error");$("playerName").focus();return}if(name.length>20){showMessage("Your name must be 20 characters or fewer.","error");return}setBusy(true);try{await ensureGuest();await runCleanup();let code=cleanCode($("roomCodeInput").value);if(action==="create"&&!code)code=randomCode();if(action==="join"&&!code)throw Error("Enter the room code your friend shared with you.");if(code.length<4||code.length>8)throw Error("Room codes must be 4–8 letters or numbers.");const {data,error}=await db.rpc(action==="create"?"create_game_room":"join_game_room",{p_room_code:code,p_player_name:name});if(error){if(/duplicate key|unique constraint|already exists/i.test(error.message))throw Error("That code is already used by an active room. Try a different code.");throw error}roomId=data;roomCode=code;$("roomCodeInput").value=code;const {data:r,error:re}=await db.from("game_rooms").select("*").eq("id",roomId).single();if(re)throw re;room=r;roomStatus=r.status;roomCreatorId=r.creator_id;setSection(r.status==="playing"?"game":"lobby");startBackgroundTasks();await loadRoom();showMessage(action==="create"?"Room created! Share the code with your friends.":"You joined the room!","success");sound("success")}catch(e){showMessage(e.message||String(e),"error");sound("error")}finally{setBusy(false)}}
+async function reviveSeat(r,seat){roomId=r.id;roomCode=r.room_code;room=r;roomStatus=r.status;roomCreatorId=r.creator_id;$("roomCodeInput").value=roomCode;const revive=await db.from("game_players").update({presence_status:"online",left_at:null}).eq("room_id",roomId).eq("user_id",seat.user_id);if(revive.error)console.warn("Seat revive:",revive.error.message);saveRoomSession($("playerName").value.trim(),roomCode,roomId);setSection(r.status==="playing"?"game":"lobby");startBackgroundTasks();await sendHeartbeat();await loadRoom();showMessage("You're back in the room.","success");sound("success");return true}
+async function reclaimDisconnectedSeat(r,name){const {data:seats,error}=await db.from("game_players").select("*").eq("room_id",r.id).ilike("player_name",name).limit(3);if(error||!seats?.length)return false;const seat=seats.find(p=>p.user_id!==userId&&(p.presence_status==="disconnected"||p.left_at));if(!seat)return false;const oldUserId=seat.user_id;const playerUpdate=await db.from("game_players").update({user_id:userId,presence_status:"online",left_at:null}).eq("room_id",r.id).eq("user_id",oldUserId);if(playerUpdate.error){console.warn("Seat reclaim failed:",playerUpdate.error.message);return false}const propertyUpdate=await db.from("game_properties").update({owner_user_id:userId}).eq("room_id",r.id).eq("owner_user_id",oldUserId);if(propertyUpdate.error)console.warn("Property reclaim failed:",propertyUpdate.error.message);if(r.current_turn_user_id===oldUserId){const turnUpdate=await db.from("game_rooms").update({current_turn_user_id:userId}).eq("id",r.id);if(turnUpdate.error)console.warn("Turn reclaim failed:",turnUpdate.error.message)}seat.user_id=userId;return reviveSeat(r,seat)}
+async function resumeExistingRoom(code,name){const {data:r,error}=await db.from("game_rooms").select("*").eq("room_code",code).in("status",["lobby","playing"]).maybeSingle();if(error||!r)return false;const {data:seat,error:seatError}=await db.from("game_players").select("*").eq("room_id",r.id).eq("user_id",userId).maybeSingle();if(!seatError&&seat)return reviveSeat(r,seat);return reclaimDisconnectedSeat(r,name)}
+async function enterRoom(action){if(isBusy)return;clearMessage();const name=$("playerName").value.trim();if(!name){showMessage("Please enter your name first.","error");$("playerName").focus();return}if(name.length>20){showMessage("Your name must be 20 characters or fewer.","error");return}setBusy(true);try{await ensureGuest();await runCleanup();let code=cleanCode($("roomCodeInput").value);if(action==="create"&&!code)code=randomCode();if(action==="join"&&!code)throw Error("Enter the room code your friend shared with you.");if(code.length<4||code.length>8)throw Error("Room codes must be 4–8 letters or numbers.");if(action==="join"&&await resumeExistingRoom(code,name))return;const {data,error}=await db.rpc(action==="create"?"create_game_room":"join_game_room",{p_room_code:code,p_player_name:name});if(error){if(action==="join"&&await resumeExistingRoom(code,name))return;if(/duplicate key|unique constraint|already exists/i.test(error.message))throw Error(action==="create"?"That code is already used by an active room. Try a different code.":"That name or seat is already in the room. If this was your disconnected seat, use the same browser/name and try again.");throw error}roomId=data;roomCode=code;$("roomCodeInput").value=code;const {data:r,error:re}=await db.from("game_rooms").select("*").eq("id",roomId).single();if(re)throw re;room=r;roomStatus=r.status;roomCreatorId=r.creator_id;saveRoomSession(name,code,roomId);setSection(r.status==="playing"?"game":"lobby");startBackgroundTasks();await loadRoom();showMessage(action==="create"?"Room created! Share the code with your friends.":"You joined the room!","success");sound("success")}catch(e){showMessage(e.message||String(e),"error");sound("error")}finally{setBusy(false)}}
 function stopBackgroundTasks(){if(pollTimer)clearInterval(pollTimer);if(heartbeatTimer)clearInterval(heartbeatTimer);pollTimer=heartbeatTimer=null}
 function startBackgroundTasks(){stopBackgroundTasks();pollTimer=setInterval(()=>loadRoom().catch(e=>{ $("syncStatus").textContent="● Sync issue";$("syncStatus").classList.add("bad");console.warn(e)}),2500);sendHeartbeat();heartbeatTimer=setInterval(sendHeartbeat,10000)}
 async function sendHeartbeat(){if(!roomId||!userId||heartbeatInFlight||document.visibilityState==="hidden")return;heartbeatInFlight=true;try{const {error}=await db.rpc("heartbeat_room",{p_room_id:roomId});if(error)console.warn("Heartbeat:",error.message)}catch(e){console.warn("Heartbeat failed:",e)}finally{heartbeatInFlight=false}}
 async function markAway(away){if(!roomId)return;try{const {error}=await db.rpc("set_player_presence",{p_room_id:roomId,p_presence_status:away?"away":"online"});if(error)console.warn("Presence:",error.message)}catch(e){console.warn(e)}}
+async function skipStuckTurn(manual=false){if(!roomId||autoSkipInFlight)return;const stuck=stuckTurnInfo();if(!stuck||!stuck.ready){if(manual)showMessage("No disconnected player is blocking the turn right now.","error");return}const nextUserId=nextTurnUserAfter(stuck.player.user_id);if(!nextUserId){if(manual)showMessage("Nobody else is available to take the next turn yet.","error");return}autoSkipInFlight=true;if(manual)setBusy(true);try{let skipped=false;const rpc=await db.rpc("end_turn",{p_room_id:roomId});if(!rpc.error)skipped=true;if(!skipped){const oldRoll=await db.from("game_players").update({has_rolled:false}).eq("room_id",roomId).eq("user_id",stuck.player.user_id);if(oldRoll.error)throw oldRoll.error;const newRoll=await db.from("game_players").update({has_rolled:false}).eq("room_id",roomId).eq("user_id",nextUserId);if(newRoll.error)throw newRoll.error;const turn=await db.from("game_rooms").update({current_turn_user_id:nextUserId}).eq("id",roomId);if(turn.error)throw turn.error}showMessage((stuck.player.player_name||"Disconnected player")+" was skipped so the game can continue.","success");sound("success");await loadRoom()}catch(e){console.warn("Skip stuck turn:",e);if(manual)showMessage("I couldn't skip that turn. Your Supabase rules may need a host-only skip_turn RPC.","error")}finally{autoSkipInFlight=false;if(manual)setBusy(false)}}
 async function loadRoom(){if(!roomId)return;const {data:r,error:rError}=await db.from("game_rooms").select("*").eq("id",roomId).single();if(rError)throw rError;room=r;roomStatus=r.status;roomCode=r.room_code;roomCreatorId=r.creator_id;if(r.status==="finished"){stopBackgroundTasks();setSection("entry");roomId=null;showMessage("This room has finished or was inactive for too long. Create or join an active room.","error");return}
 try{const presenceRefresh=await db.rpc("refresh_room_presence",{p_room_id:roomId});if(presenceRefresh.error)console.warn("Presence refresh:",presenceRefresh.error.message)}catch(e){console.warn(e)}const {data:pr,error:pe}=await db.from("game_players").select("*").eq("room_id",roomId).order("joined_at",{ascending:true});if(pe)throw pe;players=pr||[];
 const {data:prop,error:prope}=await db.from("game_properties").select("*").eq("room_id",roomId);if(prope)throw prope;properties=prop||[];
 const {data:sp,error:se}=await db.from("game_spaces").select("*").order("space_index",{ascending:true});spaces=!se&&sp?.length?sp.map(s=>({...s,name:s.name||s.space_name||fallbackSpaces[Number(s.space_index)]?.name||("Space "+s.space_index),space_type:s.space_type||s.type||fallbackSpaces[Number(s.space_index)]?.space_type||"property",price:Number(s.price||0),rent:Number(s.rent||0)})):fallbackSpaces;
 $("roomCode").textContent=roomCode||"------";$("gameRoomCode").textContent=roomCode||"------";$("lobbyCount").textContent=players.length+(players.length===1?" player":" players");$("syncStatus").textContent=document.visibilityState==="hidden"?"● Away":"● Connected";$("syncStatus").classList.remove("bad");
+if(r.status==="playing"&&stuckTurnInfo()?.ready&&!autoSkipInFlight)skipStuckTurn(false).catch(console.warn);
 if(r.status==="playing"){setSection("game");renderGame()}else{setSection("lobby");renderLobby()}previousPresence=new Map(players.map(p=>[p.user_id,p.presence_status||"online"]));}
 function makePlayerCard(p,lobby=false){const i=players.findIndex(x=>x.user_id===p.user_id),c=colorFor(p,i),card=document.createElement("div");card.className="player-card"+(p.user_id===userId?" me":"")+(p.user_id===room?.current_turn_user_id&&!lobby?" active-turn":"");card.style.setProperty("--player-color",c);const top=document.createElement("div");top.className="player-top";const token=document.createElement("span");token.className="player-token";token.textContent=(p.player_name||"?").slice(0,1).toUpperCase();const name=document.createElement("div");name.className="player-name";name.textContent=p.player_name;top.append(token,name);card.append(top);const status=document.createElement("div");status.className="player-status";const [st,cls]=statusFor(p);status.textContent=lobby?(p.is_ready?"Ready to play":"Not ready yet"):money(p.money)+" · Space "+Number(p.board_position||0);card.append(status);if(p.user_id===roomCreatorId)addTag(card,"HOST","host");if(lobby)addTag(card,p.is_ready?"READY":"WAITING",p.is_ready?"ready":"");addTag(card,st,cls);if(!lobby&&p.user_id===room?.current_turn_user_id)addTag(card,"CURRENT TURN","ready");return card}
 function addTag(parent,text,cls){const t=document.createElement("span");t.className="tag "+cls;t.textContent=text;parent.append(t)}
 function renderLobby(){const host=userId===roomCreatorId,allReady=players.length>=2&&players.every(p=>p.is_ready),me=myPlayer();$("playersList").replaceChildren(...players.map(p=>makePlayerCard(p,true)));$("readyBtn").textContent=me?.is_ready?"Cancel ready":"I'm ready";$("startBtn").classList.toggle("hidden",!host);$("startBtn").dataset.blocked=String(!host||!allReady);$("startBtn").disabled=isBusy||!host||!allReady;$("lobbyRules").textContent=host?(allReady?"Everyone is ready. Start whenever you're set!":"You're the host. Need at least two players and everyone ready."): "The host can start once at least two players have joined and everyone is ready."}
-function renderGame(){const me=myPlayer(),pos=me?Number(me.board_position||0):0,moneyVal=me?Number(me.money||0):0,myTurn=isMyTurn(),rolled=!!(me&&me.has_rolled);$("moneyValue").textContent=money(moneyVal);$("positionValue").textContent=String(pos);$("turnInfo").classList.toggle("my-turn",myTurn);$("turnInfo").textContent=myTurn?(rolled?"It's your turn. Buy the space if available, then end your turn.":"It's your turn. Roll the dice to move."):"Waiting for "+(players.find(p=>p.user_id===room.current_turn_user_id)?.player_name||"the next player")+" to play.";const sig=String(room.last_dice_1)+"-"+String(room.last_dice_2);if(room.last_dice_1!=null&&room.last_dice_2!=null){$("dice").textContent="⚄ "+room.last_dice_1+"   ⚄ "+room.last_dice_2;if(sig!==lastDiceSignature){$("diceResult").textContent="Last roll: "+room.last_dice_1+" + "+room.last_dice_2+" = "+(Number(room.last_dice_1)+Number(room.last_dice_2));lastDiceSignature=sig}}else $("dice").textContent="🎲 🎲";
+function renderGame(){const me=myPlayer(),pos=me?Number(me.board_position||0):0,moneyVal=me?Number(me.money||0):0,myTurn=isMyTurn(),rolled=!!(me&&me.has_rolled),stuck=stuckTurnInfo();$("moneyValue").textContent=money(moneyVal);$("positionValue").textContent=String(pos);$("turnInfo").classList.toggle("my-turn",myTurn);$("turnInfo").textContent=myTurn?(rolled?"It's your turn. Buy the space if available, then end your turn.":"It's your turn. Roll the dice to move."):stuck?.ready?(stuck.player.player_name+" is disconnected. The game will skip them, or you can skip now."):"Waiting for "+(players.find(p=>p.user_id===room.current_turn_user_id)?.player_name||"the next player")+" to play.";const sig=String(room.last_dice_1)+"-"+String(room.last_dice_2);if(room.last_dice_1!=null&&room.last_dice_2!=null){$("dice").textContent="⚄ "+room.last_dice_1+"   ⚄ "+room.last_dice_2;if(sig!==lastDiceSignature){$("diceResult").textContent="Last roll: "+room.last_dice_1+" + "+room.last_dice_2+" = "+(Number(room.last_dice_1)+Number(room.last_dice_2));lastDiceSignature=sig}}else $("dice").textContent="🎲 🎲";
 const ownMap=new Map(properties.map(p=>[Number(p.space_index),p.owner_user_id])),cur=spaceAt(pos),owner=ownMap.get(pos),buyable=["property","railroad","utility"].includes(String(cur.space_type||"").toLowerCase()),canBuy=myTurn&&rolled&&buyable&&Number(cur.price)>0&&!owner;
-$("rollBtn").dataset.blocked=String(!myTurn||rolled);$("endTurnBtn").dataset.blocked=String(!myTurn||!rolled);$("buyBtn").dataset.blocked=String(!canBuy);$("rollBtn").disabled=isBusy||!myTurn||rolled;$("endTurnBtn").disabled=isBusy||!myTurn||!rolled;$("buyBtn").disabled=isBusy||!canBuy;$("buyBtn").textContent=canBuy?"Buy for "+money(cur.price):"Buy property";$("currentSpace").textContent="You're on "+cur.name+(owner?" · Owned by "+(players.find(p=>p.user_id===owner)?.player_name||"another player"):"");
+$("rollBtn").dataset.blocked=String(!myTurn||rolled);$("endTurnBtn").dataset.blocked=String(!myTurn||!rolled);$("buyBtn").dataset.blocked=String(!canBuy);$("skipTurnBtn").classList.toggle("hidden",!stuck?.ready);$("skipTurnBtn").dataset.blocked=String(!stuck?.ready);$("rollBtn").disabled=isBusy||!myTurn||rolled;$("endTurnBtn").disabled=isBusy||!myTurn||!rolled;$("buyBtn").disabled=isBusy||!canBuy;$("skipTurnBtn").disabled=isBusy||!stuck?.ready;$("buyBtn").textContent=canBuy?"Buy for "+money(cur.price):"Buy property";$("currentSpace").textContent="You're on "+cur.name+(owner?" · Owned by "+(players.find(p=>p.user_id===owner)?.player_name||"another player"):"");
 $("gamePlayers").replaceChildren(...players.map(p=>makePlayerCard(p)));const mine=properties.filter(p=>p.owner_user_id===userId);$("owned").replaceChildren();if(!mine.length){$("owned").textContent="No properties yet. Land on an available property and buy it."}else mine.forEach(p=>{const s=spaceAt(Number(p.space_index)),chip=document.createElement("div");chip.className="property-chip";const dot=document.createElement("span");dot.className="legend-dot";dot.style.background=colorFor(playerByUser(userId),players.findIndex(x=>x.user_id===userId));const label=document.createElement("span");label.textContent=s.name+" · "+money(s.price);chip.append(dot,label);$("owned").append(chip)});drawBoard()}
 function drawBoard(){const board=$("board");board.replaceChildren();const center=document.createElement("div");center.className="board-center";const h=document.createElement("h2");h.textContent="FRIEND MONOPOLY";const sub=document.createElement("p");sub.textContent="Roll the dice. Make your fortune.";const roomLine=document.createElement("p");roomLine.textContent="Room "+(roomCode||"");center.append(h,sub,roomLine);board.append(center);const owners=new Map(properties.map(p=>[Number(p.space_index),p.owner_user_id]));
 for(let i=0;i<40;i++){const s=spaceAt(i),tile=document.createElement("div");tile.className="space";let row,col;if(i<=10){row=11;col=11-i}else if(i<=19){row=21-i;col=1}else if(i<=30){row=1;col=i-19}else{row=i-29;col=11}tile.style.gridRow=row;tile.style.gridColumn=col;const here=players.filter(p=>Number(p.board_position)===i);if(here.some(p=>p.user_id===userId))tile.classList.add("current");const owner=owners.get(i),ownerPlayer=players.find(p=>p.user_id===owner);if(owner){tile.classList.add("owned");tile.style.setProperty("--owner-color",colorFor(ownerPlayer,players.findIndex(p=>p.user_id===owner)))}const title=document.createElement("strong");title.textContent=s.name;const price=document.createElement("div");price.className="price";price.textContent=Number(s.price)>0?money(s.price):"";const tokens=document.createElement("div");tokens.className="tokens";here.forEach(p=>{const token=document.createElement("span");token.className="mini-token";token.title=p.player_name;token.textContent=(p.player_name||"?").slice(0,1).toUpperCase();token.style.background=colorFor(p,players.indexOf(p));tokens.append(token)});tile.append(title);if(ownerPlayer){const label=document.createElement("div");label.className="owner-label";label.textContent="OWNED: "+ownerPlayer.player_name;tile.append(label)}tile.append(price,tokens);board.append(tile)}
@@ -90,13 +458,13 @@ async function startGame(){if(!roomId||isBusy)return;setBusy(true);try{const {er
 async function rollDice(){if(!roomId||isBusy)return;setBusy(true);$("dice").classList.remove("rolling");void $("dice").offsetWidth;$("dice").classList.add("rolling");sound("roll");try{const {data,error}=await db.rpc("roll_turn",{p_room_id:roomId});if(error)throw error;await loadRoom();if(data&&typeof data==="object"){const a=data.dice_1??data.last_dice_1,b=data.dice_2??data.last_dice_2;if(a!=null&&b!=null)showMessage("You rolled "+a+" + "+b+" = "+(Number(a)+Number(b))+".","success")}}catch(e){showMessage(e.message||String(e),"error");sound("error")}finally{setBusy(false);if(roomId)await loadRoom().catch(console.warn)}}
 async function buyProperty(){if(!roomId||isBusy)return;setBusy(true);try{const {error}=await db.rpc("buy_property",{p_room_id:roomId});if(error)throw error;sound("buy");showMessage("Property purchased!","success");await loadRoom()}catch(e){showMessage(e.message||String(e),"error");sound("error")}finally{setBusy(false);if(roomId)await loadRoom().catch(console.warn)}}
 async function endTurn(){if(!roomId||isBusy)return;setBusy(true);try{const {error}=await db.rpc("end_turn",{p_room_id:roomId});if(error)throw error;sound("click");showMessage("Turn ended.","success");await loadRoom()}catch(e){showMessage(e.message||String(e),"error");sound("error")}finally{setBusy(false);if(roomId)await loadRoom().catch(console.warn)}}
-async function leaveRoom(){if(!roomId)return;const oldRoom=roomId;stopBackgroundTasks();try{const {error}=await db.rpc("leave_game_room",{p_room_id:oldRoom});if(error)console.warn("Leave status could not be saved:",error.message)}catch(e){console.warn(e)}sound("leave");roomId=null;roomCode=null;room=null;players=[];properties=[];spaces=[];roomStatus=null;roomCreatorId=null;lastDiceSignature="";lastPlayerPositions.clear();setSection("entry");showMessage("You left the room. Other players will see your status update.","success")}
+async function leaveRoom(){if(!roomId)return;const oldRoom=roomId;stopBackgroundTasks();try{const {error}=await db.rpc("leave_game_room",{p_room_id:oldRoom});if(error)console.warn("Leave status could not be saved:",error.message)}catch(e){console.warn(e)}sound("leave");clearSavedSession();roomId=null;roomCode=null;room=null;players=[];properties=[];spaces=[];roomStatus=null;roomCreatorId=null;lastDiceSignature="";lastPlayerPositions.clear();setSection("entry");showMessage("You left the room. Other players will see your status update.","success")}
 async function copyRoomCode(){if(!roomCode)return;try{await navigator.clipboard.writeText(roomCode);showMessage("Room code copied: "+roomCode,"success");sound("success")}catch{showMessage("Your room code is "+roomCode+". Copy it manually.","success")}}
-$("createBtn").addEventListener("click",()=>enterRoom("create"));$("joinBtn").addEventListener("click",()=>enterRoom("join"));$("readyBtn").addEventListener("click",setReady);$("startBtn").addEventListener("click",startGame);$("rollBtn").addEventListener("click",rollDice);$("buyBtn").addEventListener("click",buyProperty);$("endTurnBtn").addEventListener("click",endTurn);$("copyCodeBtn").addEventListener("click",copyRoomCode);$("leaveLobbyBtn").addEventListener("click",leaveRoom);$("leaveGameBtn").addEventListener("click",leaveRoom);
+$("createBtn").addEventListener("click",()=>enterRoom("create"));$("joinBtn").addEventListener("click",()=>enterRoom("join"));$("readyBtn").addEventListener("click",setReady);$("startBtn").addEventListener("click",startGame);$("rollBtn").addEventListener("click",rollDice);$("buyBtn").addEventListener("click",buyProperty);$("endTurnBtn").addEventListener("click",endTurn);$("skipTurnBtn").addEventListener("click",()=>skipStuckTurn(true));$("copyCodeBtn").addEventListener("click",copyRoomCode);$("leaveLobbyBtn").addEventListener("click",leaveRoom);$("leaveGameBtn").addEventListener("click",leaveRoom);
 $("roomCodeInput").addEventListener("input",()=>{$("roomCodeInput").value=cleanCode($("roomCodeInput").value)});$("playerName").addEventListener("keydown",e=>{if(e.key==="Enter")enterRoom("create")});$("roomCodeInput").addEventListener("keydown",e=>{if(e.key==="Enter")enterRoom("join")});
 document.addEventListener("visibilitychange",()=>{if(!roomId)return;if(document.visibilityState==="hidden"){ $("syncStatus").textContent="● Away";markAway(true)}else{$("syncStatus").textContent="● Connected";markAway(false);sendHeartbeat();loadRoom().catch(console.warn)}});window.addEventListener("online",()=>{if(roomId){$("syncStatus").textContent="● Reconnected";sendHeartbeat();loadRoom().catch(console.warn)}});window.addEventListener("offline",()=>{if(roomId){$("syncStatus").textContent="● Connection lost";$("syncStatus").classList.add("bad")}});
 window.addEventListener("pagehide",()=>{stopBackgroundTasks()});
-(async function init(){try{await ensureGuest()}catch(e){showMessage(e.message||String(e),"error")}})();
+(async function init(){try{const saved=loadSavedSession();if(saved?.name)$("playerName").value=saved.name;if(saved?.code){$("roomCodeInput").value=saved.code;showMessage("Saved room found. Click Join room to reconnect to "+saved.code+".","success")}await ensureGuest()}catch(e){showMessage(e.message||String(e),"error")}})();
 </script>
 </body>
 </html>
